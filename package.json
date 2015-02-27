@@ -1,0 +1,34 @@
+{
+  "name": "nodebb-plugin-forms",
+  "version": "0.0.1",
+  "description": "NodeBB Plugin Form",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pitaj/nodebb-plugin-forms"
+  },
+  "keywords": [
+    "nodebb",
+    "plugin",
+    "forms"
+  ],
+  "author": "pitaj <p.jaszkow@gmail.com>",
+  "contributors": [
+    "yariplus <tafike@gmail.com>"
+  ],
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/pitaj/nodebb-plugin-forms/issues"
+  },
+  "readme": "",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "async": "^0.9.0"
+  },
+  "nbbpm": {
+    "compatibility": "^0.6.0"
+  }
+}
