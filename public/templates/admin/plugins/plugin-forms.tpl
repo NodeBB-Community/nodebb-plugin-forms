@@ -10,16 +10,81 @@
                 
                 <div class="panel-body">
                     <p>
-                        Forms for doing awesome things on your forum.
-                    </p>
-                    <p>
-                        === Insert more helpful info here. ===
+                        Create forms for doing awesome things on your forum.
                     </p>
                     <ul class="ui-sortable" id="plugin-forms-forms">
+                        <!-- BEGIN forms -->
+						<li>
+                            <div class="panel panel-default">
+                                <div class="panel-heading plugin-forms-form-panel-heading clearfix">
+                                    <div class="panel-title pull-left">
+                                        {forms.formid}
+                                    </div>
+                                    <button type="button" class="btn btn-danger pull-right" >
+                                        <i class="fa fa-fw fa-times"></i> Delete
+                                    </button>
+                                    <button type="button" class="btn btn-info pull-right" >
+                                        <i class="fa fa-fw fa-copy"></i> Clone
+                                    </button>
+                                    <button type="button" class="btn btn-success pull-right plugin-forms-form-edit" >
+                                        <i class="fa fa-fw fa-cog"></i> Edit
+                                    </button>
+                                </div>
+                                <div class="panel-body hidden">
+                                    <div class="form-group">
+                                        <label class="control-label" for="">
+                                            Form Title
+                                            <input type="text" class="form-control" name="title" value="{forms.title}" />
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="">
+                                            Form ID
+                                            <input type="text" class="form-control" name="formid" value="{forms.formid}" />
+                                        </label>
+                                    </div>
+                                    <ul class="ui-sortable plugin-forms-input-sortable">
+                                        <!-- BEGIN forms.inputs -->
+                                        <li>
+                                            <div class="panel panel-default plugin-forms-input-panel" type="{forms.inputs.type}">
+                                                <div class="panel-heading plugin-forms-input-panel-heading clearfix">
+                                                    <div class="panel-title pull-left">
+                                                        {forms.inputs.type}
+                                                    </div>
+                                                    <button type="button" class="btn btn-success pull-right plugin-forms-form-edit" id="">
+                                                        <i class="fa fa-fw fa-cog"></i> Edit
+                                                    </button>
+                                                </div>
+                                                <div class="panel-body plugin-forms-input-panel-body hidden">
+                                                    <!-- IF forms.inputs.text -->
+                                                    <div class="form-group">
+                                                        <label class="control-label" for="">
+                                                            <span class="plugin-forms-label">Label</span>
+                                                            <input class="plugin-forms-input" type="text" value="{forms.inputs.label}" />
+                                                        </label>
+                                                    </div>
+                                                    <!-- ENDIF forms.inputs.text -->
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <!-- END forms.inputs -->
+                                    </ul>
+                                    <p>
+                                        <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#plugin-forms-modal-input">
+                                            <i class="fa fa-fw fa-plus"></i> Add an Input
+                                        </button>
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- END forms -->
                     </ul>
                     <button type="button" class="btn btn-success form-control" id="plugin-forms-add-form">
                         <i class="fa fa-fw fa-plus"></i> Add a Form
                     </button>
+                    
+                    <div data-type="object" data-key="objname" data-attributes="{{data-type:text,data-key:text},{data-type:number,data-key:number}}"></div>
+                    
                 </div>
             </div>
         </div>
@@ -162,10 +227,54 @@
 <script type="text/javascript">
 
 require(['settings'], function(settings) {
-    settings.sync('plugin-forms', $('#plugin-forms'));
+    socket.emit('admin.settings.get', {
+        hash: 'plugin-forms'
+    }, function (err, values) {
+        if (err) {
+            console.log('Error getting values:', err);
+            settings.cfg._ = { };
+        } else {
+            settings.helper.whenReady(function () {
+                settings.helper.use(values);
+            });
+        }
+    });
+    
     $('#save').click( function (event) {
         event.preventDefault();
-        settings.persist('plugin-forms', $('#plugin-forms'), function(){
+        
+        settings.cfg._.forms = [ ];
+        
+        var countForms = 0;
+
+        $('#plugin-forms-forms').children().each(function(){
+            var formid = $(this).find("[name='formid']").val() || "form" + countForms;
+            
+            var formIndex = settings.cfg._.forms.push({'formid': formid, title: '', inputs: [ ]}) - 1;
+
+            $(this).find('.plugin-forms-input-panel').each(function(){
+                switch ($(this).attr('type')) {
+                    case 'text':
+                        settings.cfg._.forms[formIndex].inputs.push({
+                            type: 'text',
+                            label: $(this).find("[name='label']").val(),
+                            text: true
+                        });
+                        break;
+                    default:
+                        settings.cfg._.forms[formIndex].inputs.push({
+                            type: 'text',
+                            label: $(this).find("[name='label']").val(),
+                            text: true
+                        });
+                        break;
+                }
+            });
+            
+            countForms++;
+        });
+        
+        settings.helper.persistSettings('plugin-forms', settings.cfg, true, function(){
             socket.emit('admin.settings.syncPluginForms');
         });
     });

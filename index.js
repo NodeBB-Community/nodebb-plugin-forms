@@ -21,7 +21,7 @@
 		var middleware = params.middleware;
 
 		function render(req, res, next) {
-			res.render('admin/plugins/plugin-forms', { });
+			res.render('admin/plugins/plugin-forms', PluginForms.settings.get());
 		}
 
 		router.get('/admin/plugins/plugin-forms', middleware.admin.buildHeader, render);
@@ -32,12 +32,26 @@
 
 		var defaultSettings = {
 		};
+		
+		// {
+			// forms: [
+				// formid: "",
+				// name: "",
+				// desc: "",
+				// inputs: [
+					// {
+						// type: "text",
+						// desc: "Enter Some Text"
+					// }
+				// ]
+			// ]
+		// }
 
 		PluginForms.settings = new Settings('plugin-forms', '0.0.1', defaultSettings, function() {
 			setTimeout(PluginForms.logSettings, 2000);
 		});
 
-		SocketAdmin.settings.syncPluginForms = function () {
+		SocketAdmin.settings.syncPluginForms = function (forms) {
 			PluginForms.settings.sync();
 			setTimeout(PluginForms.logSettings, 2000);
 		};
@@ -52,7 +66,10 @@
 	PluginForms.logSettings = function () {
 		var config = PluginForms.settings.get();
 		console.log("PluginForms Settings:");
-		console.log(config);
+		// for (var p in config) {
+			// console.log(typeof config[p], p, " = ", config[p]);
+		// }
+		console.log(JSON.stringify(config));
 	};
 
 	PluginForms.admin = {
