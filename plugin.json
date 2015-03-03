@@ -3,6 +3,9 @@
 	"name": "NodeBB Plugin Forms",
 	"description": "Create awesome forms for your forum.",
 	"url": "https://github.com/pitaj/nodebb-plugin-forms",
+    "staticDirs": {
+        "lib": "./lib"
+    },
     "less": [
         "public/less/style.less"
     ],

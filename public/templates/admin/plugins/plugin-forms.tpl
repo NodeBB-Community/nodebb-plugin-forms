@@ -1,3 +1,5 @@
+<link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
+<script src="/plugins/nodebb-plugin-forms/lib/bootstrap-editable.min.js"></script>
 <form id="plugin-forms">
     <div class="row">
         <div class="col-lg-9">
@@ -17,7 +19,7 @@
 						<li class="panel panel-default">
                             <div class="panel-heading plugin-forms-form-panel-heading clearfix">
                                 <div class="panel-title pull-left">
-                                    {forms.formid}
+                                    {forms.title}
                                 </div>
                                 <button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-form">
                                     <i class="fa fa-fw fa-times"></i> Delete
@@ -47,7 +49,9 @@
                                     <li class="panel panel-default plugin-forms-input-panel" type="{forms.inputs.type}">
                                         <div class="panel-heading plugin-forms-input-panel-heading clearfix">
                                             <div class="panel-title pull-left">
-                                                {forms.inputs.type}
+                                                <!-- IF forms.inputs.isText -->Text<!-- ENDIF forms.inputs.isText -->
+                                                <!-- IF forms.inputs.isTextArea -->Text Area<!-- ENDIF forms.inputs.isTextArea -->
+                                                <!-- IF forms.inputs.isCheckbox -->Checkbox<!-- ENDIF forms.inputs.isCheckbox -->
                                             </div>
                                             <button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-input">
                                                 <i class="fa fa-fw fa-times"></i> Delete
@@ -60,14 +64,29 @@
                                             </button>
                                         </div>
                                         <div class="panel-body plugin-forms-input-panel-body hidden">
-                                            <!-- IF forms.inputs.text -->
+                                            <!-- IF forms.inputs.isText -->
                                             <div class="form-group">
+                                                <span class="control-label plugin-forms-label h4">{forms.inputs.label}</span>
+                                                <hr>
+                                                <input class="plugin-forms-input" type="text" value="" />
+                                            </div>
+                                            <!-- ENDIF forms.inputs.isText -->
+                                            <!-- IF forms.inputs.isTextArea -->
+                                            <div class="form-group">
+                                                <span class="control-label plugin-forms-label h4">{forms.inputs.label}</span>
+                                                <hr>
+                                                <textarea class="plugin-forms-input" value=""></textarea>
+                                            </div>
+                                            <!-- ENDIF forms.inputs.isTextArea -->
+                                            <!-- IF forms.inputs.isCheckbox -->
+                                            <span class="control-label plugin-forms-label h4" for="group">{forms.inputs.label}</span>
+                                            <hr>
+                                            <div class="checkbox">
                                                 <label>
-                                                    <span class="control-label plugin-forms-label">Label</span>
-                                                    <input class="plugin-forms-input" type="text" value="{forms.inputs.label}" />
+                                                    <input class="plugin-forms-input" type="checkbox"> <span class="control-label plugin-forms-label h4" for="check">{forms.inputs.checklabel}</span>
                                                 </label>
                                             </div>
-                                            <!-- ENDIF forms.inputs.text -->
+                                            <!-- ENDIF forms.inputs.isCheckbox -->
                                         </div>
                                     </li>
                                     <!-- END forms.inputs -->
@@ -118,42 +137,42 @@
                             </div>
                         </p>
                         <p>
-                            <div  class="btn btn-success btn-draggable">
-                                <i class="fa fa-fw fa-plus"></i> Yes/No
+                            <div class="btn btn-info btn-draggable" type="checkbox">
+                                <i class="fa fa-fw fa-plus"></i> Checkbox
                             </div>
-                            <div  class="btn btn-success btn-draggable">
+                            <div  class="btn btn-info btn-draggable">
                                 <i class="fa fa-fw fa-plus"></i> Dropdown
                             </div>
                         </p>
                         <p>
-                            <div  class="btn btn-success btn-draggable">
+                            <div  class="btn btn-info btn-draggable">
                                 <i class="fa fa-fw fa-plus"></i> Select List
                             </div>
-                            <div  class="btn btn-success btn-draggable">
+                            <div  class="btn btn-info btn-draggable">
                                 <i class="fa fa-fw fa-plus"></i> Combobox
                             </div>
                         </p>
                         <p>
-                            <div  class="btn btn-success btn-draggable">
+                            <div  class="btn btn-info btn-draggable">
                                 <i class="fa fa-fw fa-plus"></i> Radio Group
                             </div>
-                            <div  class="btn btn-success btn-draggable">
+                            <div  class="btn btn-info btn-draggable">
                                 <i class="fa fa-fw fa-plus"></i> Check Group
                             </div>
                         </p>
                         <p>
-                            <div  class="btn btn-success btn-draggable">
-                                <i class="fa fa-fw fa-plus"></i> Another
+                            <div  class="btn btn-info btn-draggable">
+                                <i class="fa fa-fw fa-plus"></i> Select2
                             </div>
-                            <div  class="btn btn-success btn-draggable">
-                                <i class="fa fa-fw fa-plus"></i> Yet Another
+                            <div  class="btn btn-info btn-draggable">
+                                <i class="fa fa-fw fa-plus"></i> Date/Time
                             </div>
                         </p>
                         <p>
-                            <div  class="btn btn-success btn-draggable">
-                                <i class="fa fa-fw fa-plus"></i> More Input
+                            <div  class="btn btn-info btn-draggable">
+                                <i class="fa fa-fw fa-plus"></i> Key
                             </div>
-                            <div  class="btn btn-success btn-draggable">
+                            <div  class="btn btn-info btn-draggable">
                                 <i class="fa fa-fw fa-plus"></i> Best Input
                             </div>
                         </p>
@@ -228,6 +247,15 @@
 
 <script type="text/javascript">
 
+var initEditables = function() {
+    if ($.fn.editable) {
+        $.fn.editable.defaults.mode = 'inline';
+        $('.plugin-forms-label').editable();
+    }else{
+        setTimeout(initEditables, 200);
+    }
+}
+
 require(['settings'], function(settings) {
     socket.emit('admin.settings.get', {
         hash: 'plugin-forms'
@@ -250,24 +278,42 @@ require(['settings'], function(settings) {
         var countForms = 0;
 
         $('#plugin-forms-forms').children().each(function(){
-            var formid = $(this).find("[name='formid']").val() || "form" + countForms;
-            
-            var formIndex = settings.cfg._.forms.push({'formid': formid, title: '', inputs: [ ]}) - 1;
+            var formid = $(this).find("[name='formid']").val() || 'form' + countForms;
+            var title = $(this).find("[name='title']").val() || '';
+            var formIndex = settings.cfg._.forms.push({'formid': formid, title: title, inputs: [ ]}) - 1;
 
             $(this).find('.plugin-forms-input-panel').each(function(){
                 switch ($(this).attr('type')) {
                     case 'text':
                         settings.cfg._.forms[formIndex].inputs.push({
                             type: 'text',
-                            label: $(this).find("[name='label']").val(),
-                            text: true
+                            label: $(this).find('.plugin-forms-label').text() || 'Text Label',
+                            default: $(this).find(".plugin-forms-input").val() || '',
+                            isText: true
+                        });
+                        break;
+                    case 'textarea':
+                        settings.cfg._.forms[formIndex].inputs.push({
+                            type: 'textarea',
+                            label: $(this).find('.plugin-forms-label').text() || 'Text Area Label',
+                            default: $(this).find(".plugin-forms-input").val() || '',
+                            isTextArea: true
+                        });
+                        break;
+                    case 'checkbox':
+                        settings.cfg._.forms[formIndex].inputs.push({
+                            type: 'checkbox',
+                            label: $(this).find('[for="group"]').text() || '',
+                            checklabel: $(this).find('[for="check"]').text() || 'Check Label',
+                            default: $(this).find('.plugin-forms-input').attr("checked") || 'false',
+                            isCheckbox: true
                         });
                         break;
                     default:
                         settings.cfg._.forms[formIndex].inputs.push({
                             type: 'text',
-                            label: $(this).find("[name='label']").val(),
-                            text: true
+                            label: $(this).find("[name='label']").val() || '',
+                            isText: true
                         });
                         break;
                 }
@@ -315,14 +361,17 @@ require(['settings'], function(settings) {
         helper: 'clone',
         revert: 'invalid'
     });
+    
+    var countNewForms = 0;
 
     $('#plugin-forms-add-form').click(function(e){
         e.preventDefault();
+        countNewForms++
         $('#plugin-forms-forms').append('\
                     <li class="panel panel-default">\
                         <div class="panel-heading plugin-forms-form-panel-heading clearfix">\
                             <div class="panel-title pull-left">\
-                                New Form\
+                                New Form '+ countNewForms +'\
                             </div>\
                             <button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-form">\
                                 <i class="fa fa-fw fa-times"></i> Delete\
@@ -338,7 +387,7 @@ require(['settings'], function(settings) {
                             <div class="form-group">\
                                 <label class="control-label" for="">\
                                     Form Title\
-                                    <input type="text" class="form-control" name="title"></input>\
+                                    <input type="text" class="form-control" name="title" value="New Form '+ countNewForms +'"></input>\
                                 </label>\
                             </div>\
                             <div class="form-group">\
@@ -382,11 +431,40 @@ require(['settings'], function(settings) {
 				//ui.item.parent().find('.panel-body').each(function(){ $(this).addClass('hidden'); });
 			},
 			receive: function( event, ui ) {
-				var input = '<input type="text" class="form-control" name="label"></input>';
-				var html = '<li class="panel panel-default plugin-forms-input-panel">\
+                var panelTitle, inputHtml, html, type = $(this).find('.btn-draggable').attr('type');
+                switch (type) {
+                    default:
+                    case 'text':
+                        panelTitle = 'Text';
+                        inputHtml = '<div class="form-group">\
+                                                <span class="control-label plugin-forms-label h4">Text Label</span>\
+                                                <hr>\
+                                                <input class="plugin-forms-input" type="text" value="" />\
+                                            </div>';
+                        break;
+                    case 'textarea':
+                        panelTitle = 'Text Area';
+                        inputHtml = '<div class="form-group">\
+                                                <span class="control-label plugin-forms-label h4">Text Area Label</span>\
+                                                <hr>\
+                                                <textarea class="plugin-forms-input"></textarea>\
+                                            </div>';
+                        break;
+                    case 'checkbox':
+                        panelTitle = 'Checkbox';
+                        inputHtml = '<span class="control-label plugin-forms-label h4" for="group">Check Group Label</span>\
+                                            <hr>\
+                                            <div class="checkbox">\
+                                                <label>\
+                                                    <input class="plugin-forms-input" type="checkbox"/> <span class="control-label plugin-forms-label h4" for="check">Check Label</span>\
+                                                </label>\
+                                            </div>';
+                        break;
+                }
+				var html = '<li class="panel panel-default plugin-forms-input-panel" type="'+ type +'">\
 								<div class="panel-heading plugin-forms-input-panel-heading clearfix">\
 									<div class="panel-title pull-left">\
-										'+ $(this).find('.btn-draggable').text().trim() +'\
+										'+ panelTitle +'\
 									</div>\
 									<button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-input">\
                                         <i class="fa fa-fw fa-times"></i> Delete\
@@ -398,19 +476,17 @@ require(['settings'], function(settings) {
                                         <i class="fa fa-fw fa-cog"></i> Edit\
                                     </button>\
 								</div>\
-								<div class="panel-body plugin-forms-input-panel-body hidden">\
-									<div class="form-group">\
-										<label class="control-label" for="">\
-											<span class="control-label plugin-forms-label">Label</span>\
-											'+ input +'\
-										</label>\
-									</div>\
-								</div>\
+                                <div class="panel-body plugin-forms-input-panel-body">\
+								    '+ inputHtml +'\
+                                </div>\
                             </li>';
-					$(this).find('.btn-draggable').replaceWith(html);
-				}
+                $(this).find('.btn-draggable').replaceWith(html);
+                initEditables();
+            }
 		});
     }
+
+    initEditables();
 });
 
 </script>
