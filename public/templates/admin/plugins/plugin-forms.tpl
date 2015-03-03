@@ -14,67 +14,69 @@
                     </p>
                     <ul class="ui-sortable" id="plugin-forms-forms">
                         <!-- BEGIN forms -->
-						<li>
-                            <div class="panel panel-default">
-                                <div class="panel-heading plugin-forms-form-panel-heading clearfix">
-                                    <div class="panel-title pull-left">
-                                        {forms.formid}
-                                    </div>
-                                    <button type="button" class="btn btn-danger pull-right" >
-                                        <i class="fa fa-fw fa-times"></i> Delete
-                                    </button>
-                                    <button type="button" class="btn btn-info pull-right" >
-                                        <i class="fa fa-fw fa-copy"></i> Clone
-                                    </button>
-                                    <button type="button" class="btn btn-success pull-right plugin-forms-form-edit" >
-                                        <i class="fa fa-fw fa-cog"></i> Edit
-                                    </button>
+						<li class="panel panel-default">
+                            <div class="panel-heading plugin-forms-form-panel-heading clearfix">
+                                <div class="panel-title pull-left">
+                                    {forms.formid}
                                 </div>
-                                <div class="panel-body hidden">
-                                    <div class="form-group">
-                                        <label class="control-label" for="">
-                                            Form Title
-                                            <input type="text" class="form-control" name="title" value="{forms.title}" />
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label" for="">
-                                            Form ID
-                                            <input type="text" class="form-control" name="formid" value="{forms.formid}" />
-                                        </label>
-                                    </div>
-                                    <ul class="ui-sortable plugin-forms-input-sortable">
-                                        <!-- BEGIN forms.inputs -->
-                                        <li>
-                                            <div class="panel panel-default plugin-forms-input-panel" type="{forms.inputs.type}">
-                                                <div class="panel-heading plugin-forms-input-panel-heading clearfix">
-                                                    <div class="panel-title pull-left">
-                                                        {forms.inputs.type}
-                                                    </div>
-                                                    <button type="button" class="btn btn-success pull-right plugin-forms-form-edit" id="">
-                                                        <i class="fa fa-fw fa-cog"></i> Edit
-                                                    </button>
-                                                </div>
-                                                <div class="panel-body plugin-forms-input-panel-body hidden">
-                                                    <!-- IF forms.inputs.text -->
-                                                    <div class="form-group">
-                                                        <label class="control-label" for="">
-                                                            <span class="plugin-forms-label">Label</span>
-                                                            <input class="plugin-forms-input" type="text" value="{forms.inputs.label}" />
-                                                        </label>
-                                                    </div>
-                                                    <!-- ENDIF forms.inputs.text -->
-                                                </div>
+                                <button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-form">
+                                    <i class="fa fa-fw fa-times"></i> Delete
+                                </button>
+                                <button type="button" class="btn btn-info pull-right">
+                                    <i class="fa fa-fw fa-copy"></i> Clone
+                                </button>
+                                <button type="button" class="btn btn-success pull-right plugin-forms-form-edit">
+                                    <i class="fa fa-fw fa-cog"></i> Edit
+                                </button>
+                            </div>
+                            <div class="panel-body hidden">
+                                <div class="form-group">
+                                    <label class="control-label" for="">
+                                        Form Title
+                                        <input type="text" class="form-control" name="title" value="{forms.title}" />
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="">
+                                        Form ID
+                                        <input type="text" class="form-control" name="formid" value="{forms.formid}" />
+                                    </label>
+                                </div>
+                                <ul class="ui-sortable plugin-forms-input-sortable well">
+                                    <!-- BEGIN forms.inputs -->
+                                    <li class="panel panel-default plugin-forms-input-panel" type="{forms.inputs.type}">
+                                        <div class="panel-heading plugin-forms-input-panel-heading clearfix">
+                                            <div class="panel-title pull-left">
+                                                {forms.inputs.type}
                                             </div>
-                                        </li>
-                                        <!-- END forms.inputs -->
-                                    </ul>
-                                    <p>
-                                        <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#plugin-forms-modal-input">
-                                            <i class="fa fa-fw fa-plus"></i> Add an Input
-                                        </button>
-                                    </p>
-                                </div>
+                                            <button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-input">
+                                                <i class="fa fa-fw fa-times"></i> Delete
+                                            </button>
+                                            <button type="button" class="btn btn-info pull-right">
+                                                <i class="fa fa-fw fa-copy"></i> Clone
+                                            </button>
+                                            <button type="button" class="btn btn-success pull-right plugin-forms-form-edit">
+                                                <i class="fa fa-fw fa-cog"></i> Edit
+                                            </button>
+                                        </div>
+                                        <div class="panel-body plugin-forms-input-panel-body hidden">
+                                            <!-- IF forms.inputs.text -->
+                                            <div class="form-group">
+                                                <label>
+                                                    <span class="control-label plugin-forms-label">Label</span>
+                                                    <input class="plugin-forms-input" type="text" value="{forms.inputs.label}" />
+                                                </label>
+                                            </div>
+                                            <!-- ENDIF forms.inputs.text -->
+                                        </div>
+                                    </li>
+                                    <!-- END forms.inputs -->
+                                </ul>
+                                <p>
+                                    <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#plugin-forms-modal-input">
+                                        <i class="fa fa-fw fa-plus"></i> Add an Input
+                                    </button>
+                                </p>
                             </div>
                         </li>
                         <!-- END forms -->
@@ -89,13 +91,13 @@
             </div>
         </div>
         <div class="col-lg-3">
-            <div class="panel acp-panel-primary">
+            <div class="panel panel-primary">
                 <div class="panel-heading">
                     Action Panel
                 </div>
                 <div class="panel-body">
                     <button type="button" class="btn btn-success form-control" id="save">
-                        <i class="fa fa-fw fa-save"></i> Save Settings
+                        <i class="fa fa-fw fa-save"></i> Save Forms
                     </button>
                 </div>
             </div>
@@ -108,11 +110,11 @@
                     
                     <div class="text-center">
                         <p>
-                            <div  class="btn btn-success btn-draggable">
+                            <div class="btn btn-info btn-draggable" type="text">
                                 <i class="fa fa-fw fa-plus"></i> Text
                             </div>
-                            <div  class="btn btn-success btn-draggable">
-                                <i class="fa fa-fw fa-plus"></i> Large Text
+                            <div class="btn btn-info btn-draggable" type="textarea">
+                                <i class="fa fa-fw fa-plus"></i> Text Area
                             </div>
                         </p>
                         <p>
@@ -278,6 +280,137 @@ require(['settings'], function(settings) {
             socket.emit('admin.settings.syncPluginForms');
         });
     });
+
+    $('#plugin-forms-forms').on('click', '.plugin-forms-form-edit', function(e) {
+        e.preventDefault();
+        $(this).parent().parent().children('.panel-body').toggleClass('hidden');
+    }).sortable({
+        handle: ".plugin-forms-form-panel-heading",
+        placeholder: "ui-state-highlight",
+        forceHelperSize: true,
+        forcePlaceholderSize: true,
+        revert: true
+    }).on('click', '.plugin-forms-btn-delete-form', function (e) {
+        e.preventDefault();
+        var element = $(this).parents('li').first(),
+            form = $(this).parents('li').find('[name=formid]').val();
+        bootbox.confirm('Are you sure?<br><span class="text-danger strong">This will delete form ' + form + '</span>', function(result) {
+            if (result) {
+                element.remove();
+            }
+        });
+    }).on('click', '.plugin-forms-btn-delete-input', function (e) {
+        e.preventDefault();
+        var element = $(this).parents('li').first(),
+            input = 'input';
+        bootbox.confirm('Are you sure?<br><span class="text-danger strong">This will delete input ' + input + '</span>', function(result) {
+            if (result) {
+                element.remove();
+            }
+        });
+    });
+
+    $('#plugin-forms-input-panel .btn').draggable({
+        connectToSortable: '.plugin-forms-input-sortable',
+        helper: 'clone',
+        revert: 'invalid'
+    });
+
+    $('#plugin-forms-add-form').click(function(e){
+        e.preventDefault();
+        $('#plugin-forms-forms').append('\
+                    <li class="panel panel-default">\
+                        <div class="panel-heading plugin-forms-form-panel-heading clearfix">\
+                            <div class="panel-title pull-left">\
+                                New Form\
+                            </div>\
+                            <button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-form">\
+                                <i class="fa fa-fw fa-times"></i> Delete\
+                            </button>\
+                            <button type="button" class="btn btn-info pull-right">\
+                                <i class="fa fa-fw fa-copy"></i> Clone\
+                            </button>\
+                            <button type="button" class="btn btn-success pull-right plugin-forms-form-edit">\
+                                <i class="fa fa-fw fa-cog"></i> Edit\
+                            </button>\
+                        </div>\
+                        <div class="panel-body hidden">\
+                            <div class="form-group">\
+                                <label class="control-label" for="">\
+                                    Form Title\
+                                    <input type="text" class="form-control" name="title"></input>\
+                                </label>\
+                            </div>\
+                            <div class="form-group">\
+                                <label class="control-label" for="">\
+                                    Form ID\
+                                    <input type="text" class="form-control" name="formid"></input>\
+                                </label>\
+                            </div>\
+                            <ul class="ui-sortable plugin-forms-input-sortable well">\
+                            </ul>\
+                            <p>\
+                                <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#plugin-forms-modal-input">\
+                                    <i class="fa fa-fw fa-plus"></i> Add an Input\
+                                </button>\
+                            </p>\
+                        </div>\
+                    </li>')
+        .sortable("refresh");
+        makeInputSortable($('.plugin-forms-input-sortable').last());
+    });
+
+    $('.plugin-forms-input-sortable').each(function(){
+        makeInputSortable(this);
+    });
+
+    $('#plugin-forms-input-panel .btn').draggable({
+        connectToSortable: '.plugin-forms-input-sortable',
+        helper: 'clone',
+        revert: 'invalid'
+    });
+
+	function makeInputSortable(element) {
+		$(element).sortable({
+			handle: ".panel-heading",
+			placeholder: "ui-state-highlight",
+			forceHelperSize: true,
+			forcePlaceholderSize: true,
+			revert: true,
+			start: function( event, ui ) {
+				//ui.helper.find('.panel-body').addClass('hidden');
+				//ui.item.parent().find('.panel-body').each(function(){ $(this).addClass('hidden'); });
+			},
+			receive: function( event, ui ) {
+				var input = '<input type="text" class="form-control" name="label"></input>';
+				var html = '<li class="panel panel-default plugin-forms-input-panel">\
+								<div class="panel-heading plugin-forms-input-panel-heading clearfix">\
+									<div class="panel-title pull-left">\
+										'+ $(this).find('.btn-draggable').text().trim() +'\
+									</div>\
+									<button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-input">\
+                                        <i class="fa fa-fw fa-times"></i> Delete\
+                                    </button>\
+                                    <button type="button" class="btn btn-info pull-right">\
+                                        <i class="fa fa-fw fa-copy"></i> Clone\
+                                    </button>\
+                                    <button type="button" class="btn btn-success pull-right plugin-forms-form-edit">\
+                                        <i class="fa fa-fw fa-cog"></i> Edit\
+                                    </button>\
+								</div>\
+								<div class="panel-body plugin-forms-input-panel-body hidden">\
+									<div class="form-group">\
+										<label class="control-label" for="">\
+											<span class="control-label plugin-forms-label">Label</span>\
+											'+ input +'\
+										</label>\
+									</div>\
+								</div>\
+                            </li>';
+					$(this).find('.btn-draggable').replaceWith(html);
+				}
+		});
+    }
 });
 
 </script>
