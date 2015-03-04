@@ -13,12 +13,14 @@
 		translator = module.parent.require('../public/src/translator'),
 		app,
 		router,
+		middleware,
+		formids = [],
 		PluginForms = {};
 
 	PluginForms.init = function (params, callback) {
-		router = params.router;
 		app = params.app;
-		var middleware = params.middleware;
+		router = params.router;
+		middleware = params.middleware;
 
 		function render(req, res, next) {
 			res.render('admin/plugins/plugin-forms', PluginForms.settings.get());
@@ -31,6 +33,7 @@
 		});
 
 		var defaultSettings = {
+			forms: []
 		};
 		
 		// {
@@ -48,28 +51,48 @@
 		// }
 
 		PluginForms.settings = new Settings('plugin-forms', '0.0.1', defaultSettings, function() {
+			PluginForms.setRoutes();
 			setTimeout(PluginForms.logSettings, 2000);
 		});
 
 		SocketAdmin.settings.syncPluginForms = function (forms) {
-			PluginForms.settings.sync();
+			PluginForms.settings.sync(function(){
+				PluginForms.setRoutes();
+			});
 			setTimeout(PluginForms.logSettings, 2000);
 		};
 
 		callback();
 	};
-	
-	PluginForms.setRoute = function (formID) {
-		// For placing forms '/forms/formID'
+
+	PluginForms.setRoutes = function (formID) {
+		formids = [];
+		var forms = PluginForms.settings.get('forms');
+		for (var i = 0; i < forms.length; i++) {
+			formids.push(forms[i].formid);
+			router.get('/forms/' + forms[i].formid, middleware.buildHeader, PluginForms.renderForm);
+		}
+
+		// Clear old routes?
+		// for (var i = 0; i < routes.length; i++) {
+			// app.routes.get.splice(i,1);
+		// }
+	}
+
+	PluginForms.renderForm = function (req, res, next) {
+		var path = req.route.path.split('/');
+		var formid = path[path.length-1];
+		var formIndex = formids.indexOf(formid);
+		var data = !!~formIndex ? PluginForms.settings.get('forms')[formIndex] : { };
+		res.render('views/form', data);
 	}
 
 	PluginForms.logSettings = function () {
 		var config = PluginForms.settings.get();
 		console.log("PluginForms Settings:");
-		// for (var p in config) {
-			// console.log(typeof config[p], p, " = ", config[p]);
-		// }
-		console.log(JSON.stringify(config));
+		for (var p in config) {
+			console.log(typeof config[p], p, " = ", config[p]);
+		}
 	};
 
 	PluginForms.admin = {
