@@ -27,6 +27,20 @@
                 </label>
             </div>
             <!-- ENDIF inputs.isCheckbox -->
+            <!-- IF inputs.isSelect -->
+            <!-- ENDIF inputs.isSelect -->
+            <!-- IF inputs.isSelectMultiple -->
+            <!-- ENDIF inputs.isSelectMultiple -->
+            <!-- IF inputs.isRadio -->
+            <!-- ENDIF inputs.isRadio -->
+            <!-- IF inputs.isButton -->
+            <!-- ENDIF inputs.isButton -->
+            <!-- IF inputs.isGroup -->
+            <!-- ENDIF inputs.isGroup -->
+            <!-- IF inputs.isDivider -->
+            <!-- ENDIF inputs.isDivider -->
+            <!-- IF inputs.isInfo -->
+            <!-- ENDIF inputs.isInfo -->
             <!-- END inputs -->
         </div>
         <button class="btn btn-success">Submit Form</button>

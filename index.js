@@ -23,7 +23,7 @@
 		middleware = params.middleware;
 
 		function render(req, res, next) {
-			res.render('admin/plugins/plugin-forms', PluginForms.settings.get());
+			res.render('admin/plugins/plugin-forms', { });
 		}
 
 		router.get('/admin/plugins/plugin-forms', middleware.admin.buildHeader, render);
@@ -35,7 +35,7 @@
 		var defaultSettings = {
 			forms: []
 		};
-		
+
 		// {
 			// forms: [
 				// formid: "",
@@ -73,9 +73,11 @@
 			router.get('/forms/' + forms[i].formid, middleware.buildHeader, PluginForms.renderForm);
 		}
 
-		// Clear old routes?
+		// TODO: Clear old routes
 		// for (var i = 0; i < routes.length; i++) {
-			// app.routes.get.splice(i,1);
+			// if (is_old_route) {
+				// app.routes.get.splice(i,1);
+			// }
 		// }
 	}
 

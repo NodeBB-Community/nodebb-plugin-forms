@@ -1,29 +1,65 @@
 #plugin-forms {
-    .plugin-forms-panel {
-        border: @brand-primary 1px solid;
-        
-        
-        .panel-body {
-            .panel {
-                border: @brand-success 1px solid;
-            
-                .panel-heading {
-                    background-color: none;
-                    overflow: hidden;
-                    
-                    .panel-title {
-                        text-transform: none;
-                        line-height: 2.2em;
-                    }
-                    
+    #plugin-forms-forms-panel {
+        #plugin-forms-forms-list {
+            .plugin-forms-form-panel {
+                border: @brand-primary 1px solid;
+                
+                .plugin-forms-form-panel-heading {
+                    text-transform: none;
+                    line-height: 34px;
+                    padding-right: 7px;
+                    background-color: lighten(@brand-info, 35%);
+
                     .btn {
-                        margin-left: 10px;
+                        margin-left: 7px;
                     }
                 }
                 
-                >.panel-body {
+                .plugin-forms-input-list {
+                    padding: 3px;
+                    padding-bottom: 0;
                     border-top: @brand-success 1px solid;
+                    
+                    .plugin-forms-input-panel {
+                        padding: 16px;
+                        border: #efefef 1px solid;
+                        box-shadow: none;
+                        background-color: none;
+                        overflow: hidden;
+                        margin: 0;
+                        margin-bottom: 3px;
+
+                        .btn {
+                            margin-left: 7px;
+                        }
+
+                        input {
+                            &[type='text'] {
+                                width: 100%;
+                            }
+                        }
+                    }
+                    
+                    .plugin-forms-input-panel.ui-sortable-helper {
+                        box-shadow: 0px 2px 4px 0px rgba(165, 165, 165, 0.75);
+                        border: @brand-primary 1px solid;
+                    }
+
+                    .ui-state-highlight {
+                        height: 51px;
+                        line-height: 51px;
+                        border: 1px blue dotted;
+                        margin: 0;
+                        margin-bottom: 3px;
+                    }
                 }
+            }
+            
+            >li.ui-state-highlight {
+                height: 51px;
+                line-height: 51px;
+                border:1px blue dotted;
+                margin-bottom: 20px;
             }
         }
     }
@@ -49,54 +85,31 @@
             }
         }
     }
-    
+
     ul {
         list-style-type: none;
     }
-    
+
     .ui-sortable {
         padding-top: 10px;
         padding-left: 0;
         min-height: 55px;
     }
-    
-    .ui-sortable.well {
-        padding: 19px 19px 0px;
-    }
-    
-    .ui-state-highlight {
-        height: 51px;
-        line-height: 51px;
-        border:1px blue dotted;
-        margin-bottom: 20px;
-    }
-    
-    hr {
-        margin-top: 3px;
-        margin-bottom: 10px;
-    }
-    
-    .plugin-forms-label {
-        
-    }
-    
-    .plugin-forms-input {
-        width: 350px;
-    }
 }
 
-.plugin-forms-view-form {
-    label {
-        display: block;
-    }
-}
-
-#plugin-forms-input-panel {
+.plugin-forms-inputs-panel {
     .btn {
         .text-left;
         max-width: 150px;
         width: 150px;
         margin-left: 2px;
         margin-right: 2px;
+        box-shadow: 0px 1px 3px 0px rgba(165, 165, 165, 0.75);
+    }
+}
+
+.plugin-forms-view-form {
+    label {
+        display: block;
     }
 }
