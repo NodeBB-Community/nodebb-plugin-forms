@@ -162,14 +162,12 @@ var makeInputSortable = function(element) {
     $(element).sortable({
         placeholder: "ui-state-highlight",
         connectWith: ".plugin-forms-input-list",
-        forceHelperSize: true,
         forcePlaceholderSize: true,
         revert: true,
-        start: function( event, ui ) {
-            //ui.helper.find('.panel-body').addClass('hidden');
-            //ui.item.parent().find('.panel-body').each(function(){ $(this).addClass('hidden'); });
+        start: function(event, ui) {
+            $(this).sortable('refreshPositions');
         },
-        receive: function( event, ui ) {
+        receive: function(event, ui) {
             if (event.target === this && ui.item.is('.btn')) {
                 addInput(this);
                 initEditables();
@@ -335,7 +333,14 @@ require(['settings'], function(settings) {
         placeholder: "ui-state-highlight",
         forceHelperSize: true,
         forcePlaceholderSize: true,
-        revert: true
+        revert: true,
+        start: function(event, ui) {
+            $(this).find('.panel-body').each(function(){
+                $(this).addClass('hidden');
+            });
+            ui.helper.css('height', 50);
+            $(this).sortable('refreshPositions');
+        }
     }).on('click', '.plugin-forms-btn-delete-form', function (e) {
         e.preventDefault();
         var element = $(this).parents('li').first(),
