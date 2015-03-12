@@ -1,5 +1,3 @@
-<link href="/plugins/nodebb-plugin-forms/lib/bootstrap-editable.css" rel="stylesheet"/>
-<script src="/plugins/nodebb-plugin-forms/lib/bootstrap-editable.min.js"></script>
 <form id="plugin-forms">
     <div class="row">
         <div class="col-lg-9">
@@ -96,7 +94,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="panel panel-primary plugin-forms-inputs-panel">
                 <div class="panel-heading">
                     Decorations
@@ -147,7 +144,9 @@ var addForm = function() {
                         <ul class="panel-body hidden ui-sortable plugin-forms-input-list">\
                         </ul>\
                     </li>')
-    .sortable("refresh");
+    .sortable("refresh").on('mousedown', '.popover', function(e){
+        e.stopPropagation();
+    });
     makeInputSortable($('.plugin-forms-input-list').last());
     return $('#plugin-forms-forms-list').children().last();
 }
@@ -165,7 +164,7 @@ var makeInputSortable = function(element) {
         receive: function(event, ui) {
             if (event.target === this && ui.item.is('.btn')) {
                 addInput(this);
-                initEditables();
+                
             }
         }
     });
@@ -193,10 +192,28 @@ var addInput = function(inputSortable, data) {
                         </div>';
             break;
         case 'checkboxes':
-            inputHtml = '<div class="checkbox form-group">\
-                            <label>\
-                                <input class="plugin-forms-checkbox" type="checkbox"/> <span class="control-label plugin-forms-input-label" for="check">'+ label +'</span>\
-                            </label>\
+            inputHtml = '<div class="form-group">\
+                            <label class="control-label plugin-forms-input-label">'+ label +'</label>\
+                            <div class="checkbox">\
+                                <div class="plugin-forms-option-controls">\
+                                    <button type="button" class="btn-sm btn-success text-center"><i class="fa fa-sm fa-plus"></i></button>\
+                                    <button type="button" class="btn-sm btn-danger text-center"><i class="fa fa-sm fa-times"></i></button>\
+                                </div>\
+                                <label>\
+                                    <input class="plugin-forms-checkbox" type="checkbox"/>\
+                                    <span class="control-label plugin-forms-input-label" for="check">Checkbox Label 1</span>\
+                                </label>\
+                            </div>\
+                            <div class="checkbox">\
+                                <div class="plugin-forms-option-controls">\
+                                    <button type="button" class="btn-sm btn-success text-center"><i class="fa fa-sm fa-plus"></i></button>\
+                                    <button type="button" class="btn-sm btn-danger text-center"><i class="fa fa-sm fa-times"></i></button>\
+                                </div>\
+                                <label>\
+                                    <input class="plugin-forms-checkbox" type="checkbox"/>\
+                                    <span class="control-label plugin-forms-input-label" for="check">Checkbox Label 2</span>\
+                                </label>\
+                            </div>\
                         </div>';
             break;
         case 'radiogroup':
@@ -303,14 +320,9 @@ var addInput = function(inputSortable, data) {
     }else{
         $(inputSortable).append(html);
     }
-    $(html).on('mousedown', '.popover', function(e){
-        e.stopPropagation();
-        console.log("clicked");
-    });
     $(html).on('click', '.plugin-forms-btn-options-clear', function(e){
         e.preventDefault();
-    });
-    $(html).on('click', '.plugin-forms-btn-options-confirm', function(e){
+    }).on('click', '.plugin-forms-btn-options-confirm', function(e){
         console.log('editing');
         e.preventDefault();
         var type = $(this).parents('.plugin-forms-input-panel').first().attr('type') || 'text',
@@ -372,11 +384,12 @@ var addInput = function(inputSortable, data) {
         }
         $formGroup.replaceWith($html);
         $('.popover').popover('destroy');
-        initEditables();
-    })
-    $(html).on('click', '.plugin-forms-btn-options-cancel', function(e){
+        
+    }).on('click', '.plugin-forms-btn-options-cancel', function(e){
         e.preventDefault();
         $('.popover').popover('destroy');
+    }).on('mousedown', '.popover', function(e){
+        e.stopPropagation();
     });
 }
 
@@ -454,26 +467,60 @@ $('body').popover({
     }
 });
 
-$('body').on('show.bs.popover', function () {
-    hidePopovers(this);
-});
-
-var hidePopovers = function(el) {
-    $('.popover').each(function(){
-        if (!(this === el)) {
-            $(this).prev().popover('destroy');
-        }
-    });
-}
-
-var initEditables = function() {
-    if ($.fn.editable) {
-        $('.plugin-forms-form-title, .plugin-forms-input-label, .plugin-forms-input-options, .plugin-forms-form-id').editable();
-        $('.plugin-forms-input-options').tagsinput();
-    }else{
-        setTimeout(initEditables, 200);
+$('body').popover({
+    title: '',
+    selector: '.plugin-forms-input-label, .plugin-forms-form-title, .plugin-forms-input-options, .plugin-forms-form-id',
+    placement: 'top',
+    html: 'true',
+    content: function(){
+        var $html = $(document.createElement('div')).addClass('form-group').addClass('control-group');
+            
+        $html.append('<div>\
+                        <div style="position: relative;">\
+                            <input style="padding-right: 24px;" class="form-control input-sm" type="text">\
+                            <i class="fa fa-times-circle pointer"></i>\
+                        </div>\
+                        <div style="position: relative;">\
+                            <button type="submit" class="btn btn-primary btn-sm plugin-forms-input-label-submit">\
+                                <i class="fa fa-check"></i>\
+                            </button>\
+                            <button type="button" class="btn btn-default btn-sm plugin-forms-input-label-cancel">\
+                                <i class="fa fa-times"></i>\
+                            </button>\
+                        </div>\
+                    </div>');
+        $html.on('keypress', '.input-sm', function(e){
+            if(e.which === 13) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).parents('.popover').prev().text($(this).val() || 'empty');
+                $(this).parents('.popover').popover('hide');
+            }
+        }).on('click', '.plugin-forms-input-label-submit', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).parents('.popover').prev().text($(this).parents('.popover').first().find('.input-sm').val() || 'empty');
+            $(this).parents('.popover').popover('hide');
+        }).on('click', '.plugin-forms-input-label-cancel', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).parents('.popover').popover('hide');
+        }).on('click', '.fa-times-circle', function(e){
+            $(this).prev().val('');
+        });
+        
+        return $html;
     }
-}
+}).on('shown.bs.popover', function (e) {
+    var $el = $(e.target);
+    if ($el.is('.plugin-forms-input-label, .plugin-forms-form-title, .plugin-forms-input-options, .plugin-forms-form-id')) {
+        $('[id="'+ $el.attr('aria-describedby') +'"]').find('input').val($el.text());
+    }
+}).on('show.bs.popover', function (e) {
+    $('.popover').each(function(){
+        $(this).prev().popover('destroy');
+    });
+});
 
 require(['settings'], function(settings) {
     socket.emit('admin.settings.get', {
@@ -495,7 +542,6 @@ require(['settings'], function(settings) {
                         }
                     }
                 }
-                initEditables();
             });
         }
     });
@@ -593,7 +639,7 @@ require(['settings'], function(settings) {
         $newForm.find('.plugin-forms-form-title').text(formtitle + ' Clone'),
         $newForm.find('.plugin-forms-form-id').text(formid + 'clone');
         $newForm.insertAfter($form);
-        initEditables();
+        
         makeInputSortable($newForm.find('.plugin-forms-input-list'));
     }).on('click', '.plugin-forms-btn-delete-input', function (e) {
         e.preventDefault();
@@ -617,7 +663,6 @@ require(['settings'], function(settings) {
     $('#plugin-forms-add-form').click(function(e){
         e.preventDefault();
         addForm();
-        initEditables();
     });
 
     $('.plugin-forms-inputs-panel .btn').draggable({
