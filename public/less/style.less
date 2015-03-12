@@ -30,7 +30,7 @@
                         margin: 0;
                         margin-bottom: 3px;
 
-                        .btn {
+                        .plugin-forms-btn-edit-input, .plugin-forms-btn-clone-input, .plugin-forms-btn-delete-input {
                             padding: 3px 4px;
                             margin-top: -10px;
                             margin-left: 6px;
@@ -43,6 +43,22 @@
                                 width: 100%;
                                 margin-right: 6px;
                             }
+                        }
+                        
+                        .popover {
+                            textarea {
+                                resize: none;
+                                height: 105px;
+                            }
+                        }
+                        
+                        textarea {
+                            height: 105px;
+                            width: 100%;
+                        }
+                        
+                        select {
+                            width: 145px;
                         }
                     }
                     
@@ -104,13 +120,29 @@
 }
 
 .plugin-forms-inputs-panel {
+    padding: 0;
+
+    .panel-body {
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-bottom: 3px;
+
+        .container-fluid {
+            padding: 0;
+
+            .col-lg-6 {
+                padding-top: 0;
+                padding-bottom: 0;
+                padding-left: 7px;
+                padding-right: 7px;
+            }
+        }
+    }
     .btn {
         .text-left;
-        max-width: 150px;
-        width: 150px;
-        margin-left: 2px;
-        margin-right: 2px;
-        box-shadow: 0px 1px 3px 0px rgba(165, 165, 165, 0.75);
+        width: 100%;
+        margin-bottom: 15px;
+        box-shadow: 0px 4px 2px 0px rgba(120, 120, 120, 0.75);
     }
 }
 

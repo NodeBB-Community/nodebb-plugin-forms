@@ -28,6 +28,14 @@
             </div>
             <!-- ENDIF inputs.isCheckbox -->
             <!-- IF inputs.isSelect -->
+            <div class="form-group">
+                <label class="control-label">{inputs.label}</label>
+                <select>
+                    <!-- BEGIN inputs.options -->
+                    <option value="{inputs.options.value}">{inputs.options.text}</option>
+                    <!-- END inputs.options -->
+                </select>
+            </div>
             <!-- ENDIF inputs.isSelect -->
             <!-- IF inputs.isSelectMultiple -->
             <!-- ENDIF inputs.isSelectMultiple -->

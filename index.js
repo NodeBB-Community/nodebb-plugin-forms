@@ -36,17 +36,22 @@
 			forms: []
 		};
 
-		// {
+		// settings: {
 			// forms: [
-				// formid: "",
-				// name: "",
-				// desc: "",
-				// inputs: [
-					// {
-						// type: "text",
-						// desc: "Enter Some Text"
-					// }
-				// ]
+				// {
+					// formid: "form1",
+					// title: "Form One",
+					// inputs: [
+						// {
+							// type: "text",
+							// label: "Enter Some Text"
+							// isINPUT: true,
+							// options: [{value: 'value', text: 'text'}]
+						// }
+					// ],
+					// options: {width: 100}
+					// action: {method: 'POST', uri: '//forms/form1/post/'}
+				// }
 			// ]
 		// }
 
