@@ -137,10 +137,10 @@ var addForm = function() {
                             <button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-form">\
                                 <i class="fa fa-fw fa-times"></i> Delete\
                             </button>\
-                            <button type="button" class="btn btn-info pull-right">\
+                            <button type="button" class="btn btn-info pull-right plugin-forms-btn-clone-form">\
                                 <i class="fa fa-fw fa-copy"></i> Clone\
                             </button>\
-                            <button type="button" class="btn btn-success pull-right plugin-forms-form-edit">\
+                            <button type="button" class="btn btn-success pull-right plugin-forms-btn-edit-form">\
                                 <i class="fa fa-fw fa-cog"></i> Edit\
                             </button>\
                         </div>\
@@ -452,29 +452,19 @@ $('body').popover({
                         <button class="btn btn-default plugin-forms-btn-options-cancel"><i class="fa fa-fw fa-times"></i></button>';
         return html;
     }
-}).on('show.bs.tooltip', function () {
-    var newTooltip = this;
-    $('.tooltip').each(function(){
-        if (!(this === newTooltip)) {
-            $(this).popover('destroy');
-        }
-    });
 });
 
-$('body').popover({
-    title: 'title',
-    selector: '.plugin-forms-btn-clone-input',
-    placement: 'top',
-    html: 'true',
-    content: 'content'
-}).on('show.bs.tooltip', function () {
-    var newTooltip = this;
-    $('.tooltip').each(function(){
-        if (!(this === newTooltip)) {
-            $(this).popover('destroy');
+$('body').on('show.bs.popover', function () {
+    hidePopovers(this);
+});
+
+var hidePopovers = function(el) {
+    $('.popover').each(function(){
+        if (!(this === el)) {
+            $(this).prev().popover('destroy');
         }
     });
-});
+}
 
 var initEditables = function() {
     if ($.fn.editable) {
@@ -567,7 +557,7 @@ require(['settings'], function(settings) {
         });
     });
 
-    $('#plugin-forms-forms-list').on('click', '.plugin-forms-form-edit', function(e) {
+    $('#plugin-forms-forms-list').on('click', '.plugin-forms-btn-edit-form', function(e) {
         e.preventDefault();
         $(this).parent().parent().children('.panel-body').toggleClass('hidden');
     }).sortable({
@@ -593,6 +583,18 @@ require(['settings'], function(settings) {
                 element.remove();
             }
         });
+    }).on('click', '.plugin-forms-btn-clone-form', function (e) {
+        e.preventDefault();
+        var $form = $(this).parents('.plugin-forms-form-panel').first(),
+            $newForm = $form.clone(),
+            formtitle = $newForm.find('.plugin-forms-form-title').text(),
+            formid = $newForm.find('.plugin-forms-form-id').text();
+        
+        $newForm.find('.plugin-forms-form-title').text(formtitle + ' Clone'),
+        $newForm.find('.plugin-forms-form-id').text(formid + 'clone');
+        $newForm.insertAfter($form);
+        initEditables();
+        makeInputSortable($newForm.find('.plugin-forms-input-list'));
     }).on('click', '.plugin-forms-btn-delete-input', function (e) {
         e.preventDefault();
         var element = $(this).parents('li').first(),
@@ -602,6 +604,14 @@ require(['settings'], function(settings) {
                 element.remove();
             }
         });
+    }).on('click', '.plugin-forms-btn-clone-input', function (e) {
+        e.preventDefault();
+        var $input = $(this).parents('.plugin-forms-input-panel').first(),
+            $newInput = $input.clone(),
+            text = $newInput.find('.plugin-forms-input-label').text();
+        
+        $newInput.find('.plugin-forms-input-label').text(text + ' Clone');
+        $newInput.insertAfter($input);
     });
 
     $('#plugin-forms-add-form').click(function(e){
