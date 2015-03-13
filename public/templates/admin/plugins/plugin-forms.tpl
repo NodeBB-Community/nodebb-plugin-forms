@@ -176,54 +176,75 @@ var addInput = function(inputSortable, data) {
         html,
         type = data.type || $(inputSortable).find('.btn-draggable').attr('type') || 'input',
         label = data.label || type.charAt(0).toUpperCase() + type.slice(1) + ' Label',
-        options = data.options || '';
+        options = data.options || [ ],
+        idefault = data.default || [ ],
+        stamp = Date.now();
     switch (type) {
         default:
         case 'text':
             inputHtml = '<div class="form-group">\
                             <label class="control-label plugin-forms-input-label">'+ label +'</label>\
-                            <br><input class="plugin-forms-input" type="'+ type +'" value=""/>\
+                            <br><input class="plugin-forms-input" type="'+ type +'" value="'+ data.default +'"/>\
                         </div>';
             break;
         case 'textarea':
             inputHtml = '<div class="form-group">\
                             <label class="control-label plugin-forms-input-label">'+ label +'</label>\
-                            <br><textarea class="plugin-forms-input"></textarea>\
+                            <br><textarea class="plugin-forms-input">'+ data.default +'</textarea>\
                         </div>';
             break;
         case 'checkboxes':
+            if (!Array.isArray(idefault)) {
+                idefault = [idefault];
+            }
             inputHtml = '<div class="form-group">\
-                            <label class="control-label plugin-forms-input-label">'+ label +'</label>\
-                            <div class="checkbox">\
-                                <div class="plugin-forms-option-controls">\
-                                    <button type="button" class="btn-sm btn-success text-center"><i class="fa fa-sm fa-plus"></i></button>\
-                                    <button type="button" class="btn-sm btn-danger text-center"><i class="fa fa-sm fa-times"></i></button>\
-                                </div>\
+                            <label class="control-label plugin-forms-input-label">'+ label +'</label>';
+            if (idefault.length > 0) {
+                $.each(idefault, function(i, checked) {
+                    checked = checked ? ' checked="checked"' : '';
+                    inputHtml = inputHtml + '<div class="checkbox">\
+                                                <label>\
+                                                    <input class="plugin-forms-input-option" value="'+ options[i].value +'" type="checkbox"'+ checked +'/>\
+                                                    <span class="control-label plugin-forms-option-label">'+ options[i].label +'</span>\
+                                                </label>\
+                                            </div>';
+                });
+            }else{
+                inputHtml = inputHtml + '<div class="checkbox">\
                                 <label>\
-                                    <input class="plugin-forms-checkbox" type="checkbox"/>\
-                                    <span class="control-label plugin-forms-input-label" for="check">Checkbox Label 1</span>\
+                                    <input class="plugin-forms-input-option" value="value" type="checkbox"/>\
+                                    <span class="control-label plugin-forms-option-label">Checkbox Label</span>\
                                 </label>\
-                            </div>\
-                            <div class="checkbox">\
-                                <div class="plugin-forms-option-controls">\
-                                    <button type="button" class="btn-sm btn-success text-center"><i class="fa fa-sm fa-plus"></i></button>\
-                                    <button type="button" class="btn-sm btn-danger text-center"><i class="fa fa-sm fa-times"></i></button>\
-                                </div>\
-                                <label>\
-                                    <input class="plugin-forms-checkbox" type="checkbox"/>\
-                                    <span class="control-label plugin-forms-input-label" for="check">Checkbox Label 2</span>\
-                                </label>\
-                            </div>\
-                        </div>';
+                            </div>';
+            }
+            inputHtml = inputHtml + '</div>';
             break;
         case 'radiogroup':
             label = "Multiple Choice Label";
+            if (!Array.isArray(idefault)) {
+                idefault = [idefault];
+            }
             inputHtml = '<div class="form-group">\
-                            <label class="control-label plugin-forms-input-label">'+ label +'</label><br>\
-                            <input type="radio" name="radiogroup" value=""/> Option 1<br>\
-                            <input type="radio" name="radiogroup" value=""/> Option 2<br>\
-                            <input type="radio" name="radiogroup" value=""/> Option 3<br>\
-                        </div>'
+                            <label class="control-label plugin-forms-input-label">'+ label +'</label>';
+            if (idefault.length > 0) {
+                $.each(idefault, function(i, checked) {
+                    checked = checked ? ' checked="checked"' : '';
+                    inputHtml = inputHtml + '<div class="radio">\
+                                               <label>\
+                                                    <input type="radio" name="radiogroup'+ stamp +'" value="'+ options[i].value +'" class="plugin-forms-input-option"'+ checked +'/>\
+                                                    <span class="control-label plugin-forms-option-label">'+ options[i].label +'</span>\
+                                                </label>\
+                                            </div>';
+                });
+            }else{
+                inputHtml = inputHtml + '<div class="radio">\
+                                <label>\
+                                    <input type="radio" name="radiogroup'+ stamp +'" value="" class="plugin-forms-input-option"/>\
+                                    <span class="control-label plugin-forms-option-label">Choice Label</span>\
+                                </label>\
+                            </div>';
+            }
+            inputHtml = inputHtml + '</div>';
             break;
         case 'date':
             inputHtml = '<div class="form-group">\
@@ -236,9 +257,9 @@ var addInput = function(inputSortable, data) {
             inputHtml = '<div class="form-group">\
                             <label class="control-label plugin-forms-input-label">'+ label +'</label>\
                             <br><select class="plugin-forms-input">\
-                                <option>Option 1</option>\
-                                <option>Option 2</option>\
-                                <option>Option 3</option>\
+                                <option class="plugin-forms-input-option">Option 1</option>\
+                                <option class="plugin-forms-input-option">Option 2</option>\
+                                <option class="plugin-forms-input-option">Option 3</option>\
                             </select>\
                         </div>';
             break;
@@ -280,24 +301,14 @@ var addInput = function(inputSortable, data) {
                         </div>';
             break;
         case 'selectmultiple':
-            label = "Multiple Select Label";
-            inputHtml = '<div class="form-group">\
-                            <label class="control-label plugin-forms-input-label">'+ label +'</label>\
-                            <br><select class="plugin-forms-input" multiple>\
-                                <option>Option 1</option>\
-                                <option>Option 2</option>\
-                                <option>Option 3</option>\
-                            </select>\
-                        </div>';
-            break;
         case 'select2':
             label = "Select2 Label";
             inputHtml = '<div class="form-group">\
                             <label class="control-label plugin-forms-input-label">'+ label +'</label>\
                             <br><select class="plugin-forms-input" multiple>\
-                                <option>Option 1</option>\
-                                <option>Option 2</option>\
-                                <option>Option 3</option>\
+                                <option class="plugin-forms-input-option">Option 1</option>\
+                                <option class="plugin-forms-input-option">Option 2</option>\
+                                <option class="plugin-forms-input-option">Option 3</option>\
                             </select>\
                         </div>';
             break;
@@ -323,39 +334,64 @@ var addInput = function(inputSortable, data) {
     $(html).on('click', '.plugin-forms-btn-options-clear', function(e){
         e.preventDefault();
     }).on('click', '.plugin-forms-btn-options-confirm', function(e){
-        console.log('editing');
         e.preventDefault();
         var type = $(this).parents('.plugin-forms-input-panel').first().attr('type') || 'text',
             label = $(this).parents('.plugin-forms-input-panel').first().find('.plugin-forms-input-label').text() || type.charAt(0).toUpperCase() + type.slice(1) + 'Label',
             $formGroup = $(this).parents('.plugin-forms-input-panel').first().find('.form-group'),
-            $labels = $(this).parents('.popover').first().find('.plugin-forms-input-labels'),
-            $values = $(this).parents('.popover').first().find('.plugin-forms-input-values'),
-            $html = $(document.createElement('div')).addClass('form-group'),
-            value;
+            $input = $formGroup.find('.plugin-forms-input'),
+            labels = $(this).parents('.popover').first().find('.plugin-forms-option-label').map(function(i, el){
+                return $(el).val();
+            }),
+            values = $(this).parents('.popover').first().find('.plugin-forms-option-value').map(function(i, el){
+                return $(el).val();
+            }),
+            $html,
+            value,
+            stamp = Date.now();
 
         switch (type) {
             case 'text':
-                $html.append('<label class="control-label plugin-forms-input-label">'+ label +'</label>\
-                              <br><input class="plugin-forms-input" type="text" value=""/>');
+                $html = $formGroup;
                 break;
             case 'textarea':
-                $html.append('<label class="control-label plugin-forms-input-label">'+ label +'</label>\
-                              <br><textarea class="plugin-forms-input"></textarea>');
+                $html = $formGroup;
                 break;
             case 'checkboxes':
-                $html.addClass('checkbox');
-                $html.append('<label>\
-                                  <input class="plugin-forms-check" type="checkbox"/> <span class="control-label plugin-forms-input-label" for="check">'+ label +'</span>\
-                              </label>');
+                $html = $formGroup.clone();
+                $html.find('.checkbox').remove();
+                $.each(labels, function(i, label){
+                    $html.append('<div class="checkbox">\
+                                        <label>\
+                                            <input class="plugin-forms-input-option" value="'+ values[i] +'" type="checkbox" name="radio'+ stamp +'"/>\
+                                            <span class="control-label plugin-forms-option-label">'+ label +'</span>\
+                                        </label>\
+                                    </div>');
+                });
                 break;
             case 'radiogroup':
-                $html = $formGroup;
+                $html = $formGroup.clone();
+                $html.find('.radio').remove();
+                $.each(labels, function(i, label){
+                    $html.append('<div class="radio">\
+                                        <label>\
+                                            <input class="plugin-forms-input-option" value="'+ values[i] +'" type="radio" name="radio'+ stamp +'"/>\
+                                            <span class="control-label plugin-forms-option-label">'+ label +'</span>\
+                                        </label>\
+                                    </div>');
+                });
                 break;
             case 'date':
                 $html = $formGroup;
                 break;
             case 'select':
-                $html = $formGroup;
+            case 'select2':
+            case 'selectmultiple':
+                $html = $formGroup.clone();
+                $input = $html.find('.plugin-forms-input');
+                $input.empty();
+                $.each(labels, function(i, label){
+                    $input.append('<option class="plugin-forms-input-option" value="'+ values[i] +'">'+ label +'</option>');
+                });
                 break;
             case 'time':
                 $html = $formGroup;
@@ -373,12 +409,6 @@ var addInput = function(inputSortable, data) {
                 $html = $formGroup;
                 break;
             case 'address':
-                $html = $formGroup;
-                break;
-            case 'selectmultiple':
-                $html = $formGroup;
-                break;
-            case 'select2':
                 $html = $formGroup;
                 break;
         }
@@ -399,114 +429,108 @@ $('body').popover({
         return type.charAt(0).toUpperCase() + type.slice(1) + ' Options';
     },
     selector: '.plugin-forms-btn-edit-input',
-    placement: 'top',
+    placement: 'bottom',
     html: 'true',
     content: function(){
         var type = $(this).parents('.plugin-forms-input-panel').first().attr('type') || 'text',
+            $formGroup = $(this).parents('.plugin-forms-input-panel').first().find('.form-group').first(),
             html;
         switch (type) {
             case 'text':
-                html = 'TODO: Add some options.<br>';
-                break;
             case 'textarea':
-                html = 'TODO: Add some options.<br>';
-                break;
-            case 'checkboxes':
-                html = '<div class="form-group">\
-                            <label class="control-label">Labels</label>\
-                            <br><textarea class="plugin-forms-input-options"></textarea>\
-                        </div>';
-                break;
-            case 'radiogroup':
-                html = 'TODO: Add some options.<br>';
-                break;
             case 'date':
-                html = 'TODO: Add some options.<br>';
-                break;
-            case 'select':
-                html = '<table width="100%">\
-                            <tr>\
-                                <td><label class="control-label">Labels</label></td>\
-                                <td><label class="control-label">Values</label></td>\
-                            </tr>\
-                            <tr>\
-                                <td><textarea class="plugin-forms-input-labels"></textarea></td>\
-                                <td><textarea class="plugin-forms-input-values"></textarea></td>\
-                            </tr>\
-                        </table>';
-                break;
             case 'time':
-                html = 'TODO: Add some options.<br>';
-                break;
             case 'number':
-                html = 'TODO: Add some options.<br>';
-                break;
             case 'url':
-                html = 'TODO: Add some options.<br>';
-                break;
             case 'email':
-                html = 'TODO: Add some options.<br>';
-                break;
             case 'price':
-                html = 'TODO: Add some options.<br>';
-                break;
             case 'address':
                 html = 'TODO: Add some options.<br>';
                 break;
-            case 'selectmultiple':
-                html = 'TODO: Add some options.<br>';
-                break;
+            case 'checkboxes':
+            case 'radiogroup':
+            case 'select':
             case 'select2':
-                html = 'TODO: Add some options.<br>';
+            case 'selectmultiple':
+                html = '<p>\
+                            <label class="control-label" style="display:inline-block;min-width:90px;">Values</label>\
+                            <label class="control-label" style="display:inline-block;min-width:160px;">Labels</label>\
+                        </p>';
+                var $pairs = $formGroup.find('.plugin-forms-input-option');
+                for (var i = 0; i < $pairs.length; i++) {
+                    html = html + '<div class="plugin-forms-value-label-pairs">\
+                            <input class="plugin-forms-option-value form-control" value="'+ ( $($pairs[i]).val() || $($pairs[i]).attr('value') ) +'"/>\
+                            <input class="plugin-forms-option-label form-control" value="'+ ( $($pairs[i]).text() || $($pairs[i]).next().text() ) +'"/>\
+                            <button class="plugin-forms-input-add btn btn-success">\
+                                <i class="fa fa-plus"></i>\
+                            </button>\
+                            <button class="plugin-forms-input-remove btn btn-danger">\
+                                <i class="fa fa-times"></i>\
+                            </button>\
+                        </div>';
+                }
                 break;
         }
-        html = html + '\
-                        <button class="btn btn-primary plugin-forms-btn-options-confirm"><i class="fa fa-fw fa-check"></i></button>\
-                        <button class="btn btn-default plugin-forms-btn-options-cancel"><i class="fa fa-fw fa-times"></i></button>';
-        return html;
+        html = html + '<p>\
+                            <button class="btn btn-primary plugin-forms-btn-options-confirm"><i class="fa fa-fw fa-check"></i></button>\
+                            <button class="btn btn-default plugin-forms-btn-options-cancel"><i class="fa fa-fw fa-times"></i></button>\
+                        </p>';
+        html = $.parseHTML(html);
+        $(html).on('click', '.plugin-forms-input-add', addArray).on('click', '.plugin-forms-input-remove', removeArray);
+        return $(html);
     }
 });
 
+var removeArray = function(e) {
+    e.preventDefault();
+    if ($(this).parent().parent().children('div').length > 1) {
+        $(this).parent().remove();
+    }
+};
+
+var addArray = function(e) {
+    e.preventDefault();
+    var $clone = $(this).parent().clone();
+    $clone.on('click', '.plugin-forms-input-add', addArray).on('click', '.plugin-forms-input-remove', removeArray);
+    $clone.insertAfter($(this).parent());
+};
+
 $('body').popover({
     title: '',
-    selector: '.plugin-forms-input-label, .plugin-forms-form-title, .plugin-forms-input-options, .plugin-forms-form-id',
+    selector: '.plugin-forms-input-label, .plugin-forms-form-title, .plugin-forms-form-id',
     placement: 'top',
     html: 'true',
     content: function(){
-        var $html = $(document.createElement('div')).addClass('form-group').addClass('control-group');
-            
-        $html.append('<div>\
-                        <div style="position: relative;">\
-                            <input style="padding-right: 24px;" class="form-control input-sm" type="text">\
-                            <i class="fa fa-times-circle pointer"></i>\
-                        </div>\
-                        <div style="position: relative;">\
-                            <button type="submit" class="btn btn-primary btn-sm plugin-forms-input-label-submit">\
-                                <i class="fa fa-check"></i>\
-                            </button>\
-                            <button type="button" class="btn btn-default btn-sm plugin-forms-input-label-cancel">\
-                                <i class="fa fa-times"></i>\
-                            </button>\
-                        </div>\
-                    </div>');
-        $html.on('keypress', '.input-sm', function(e){
+        var $html = $(document.createElement('div'));
+        $html.append('<div><input style="padding-right: 24px;" class="form-control input-sm" type="text">\
+                                <i class="fa fa-times-circle pointer"></i>\
+                                <button type="submit" class="btn btn-primary btn-sm plugin-forms-input-label-submit">\
+                                    <i class="fa fa-check"></i>\
+                                </button>\
+                                <button type="button" class="btn btn-default btn-sm plugin-forms-input-label-cancel">\
+                                    <i class="fa fa-times"></i>\
+                                </button></div>');
+        $html.find('.input-sm').on('keypress', function(e){
             if(e.which === 13) {
                 e.preventDefault();
                 e.stopPropagation();
                 $(this).parents('.popover').prev().text($(this).val() || 'empty');
                 $(this).parents('.popover').popover('hide');
             }
-        }).on('click', '.plugin-forms-input-label-submit', function(e){
+        });
+        $html.find('.plugin-forms-input-label-submit').on('click', function(e){
             e.preventDefault();
             e.stopPropagation();
             $(this).parents('.popover').prev().text($(this).parents('.popover').first().find('.input-sm').val() || 'empty');
             $(this).parents('.popover').popover('hide');
-        }).on('click', '.plugin-forms-input-label-cancel', function(e){
+        });
+        $html.find('.plugin-forms-input-label-cancel').on('click', function(e){
             e.preventDefault();
             e.stopPropagation();
             $(this).parents('.popover').popover('hide');
-        }).on('click', '.fa-times-circle', function(e){
-            $(this).prev().val('');
+        });
+        $html.find('.fa-times-circle').on('click', function(e){
+            $(e.target).prev().val('');
         });
         
         return $html;
@@ -532,6 +556,9 @@ require(['settings'], function(settings) {
         } else {
             settings.helper.whenReady(function () {
                 settings.helper.use(values);
+                if (!settings.cfg._.forms) {
+                    settings.cfg._.forms = [ ];
+                }
                 for (var i = 0; i < settings.cfg._.forms.length; i++) {
                     if (settings.cfg._.forms[i]) {
                         var $newForm = addForm();
@@ -569,35 +596,114 @@ require(['settings'], function(settings) {
                         input.isText = true;
                         break;
                     case 'textarea':
+                        input.default = $(this).find(".plugin-forms-input").val();
                         input.isTextArea = true;
                         break;
                     case 'checkboxes':
-                        input.isCheckbox = true;
-                        break;
-                    case 'select':
-                        options: [{text: 'Option 1', value: 1}, {text: 'Option 2', value: 2}, {text: 'Option 3', value: 3}],
-                        input.isSelect = true;
-                        break;
-                    case 'selectmultiple':
-                        input.isSelectMultiple = true;
-                        break;
-                    case 'checkgroup':
-                        input.isCheckGroup = true;
+                        var $options = $(this).find(".plugin-forms-input-option");
+                        var $labels = $(this).find(".plugin-forms-option-label");
+
+                        input.options = [ ];
+                        input.default = [ ];
+                        for (var i = 0; i < $options.length; i++) {
+                            input.default.push($options[i].checked || false);
+                            input.options.push({value: $($options[i]).attr('value') || '', label: $($labels.get(i)).text() || 'empty'});
+                        }
+                        input.isCheckboxes = true;
                         break;
                     case 'radiogroup':
+                        var $options = $(this).find(".plugin-forms-input-option");
+                        var $labels = $(this).find(".plugin-forms-option-label");
+
+                        input.options = [ ];
+                        input.default = [ ];
+                        for (var i = 0; i < $options.length; i++) {
+                            input.default.push($options[i].checked || false);
+                            input.options.push({value: $($options[i]).attr('value') || '', label: $($labels.get(i)).text() || 'empty'});
+                        }
                         input.isRadioGroup = true;
                         break;
-                    default:
-                        input.isText = true;
+                    case 'date':
+                        input.default = $(this).find(".plugin-forms-input").val();
+                        input.isDate = true;
+                        break;
+                    case 'select':
+                        var options = $(this).find("option").map(function(){
+                            return $(this).val();
+                        });
+                        var labels = $(this).find("option").map(function(){
+                            return $(this).text();
+                        });
+
+                        input.default = $(this).find('select').val();
+                        input.options = [ ];
+                        for (var i = 0; i < options.length; i++) {
+                            input.options.push({value: options[i], label: labels[i]});
+                        }
+                        input.isSelect = true;
+                        break;
+                    case 'time':
+                        input.default = $(this).find(".plugin-forms-input").val();
+                        input.isTime = true;
+                        break;
+                    case 'number':
+                        input.default = $(this).find(".plugin-forms-input").val();
+                        input.isNumber = true;
+                        break;
+                    case 'url':
+                        input.default = $(this).find(".plugin-forms-input").val();
+                        input.isURL = true;
+                        break;
+                    case 'email':
+                        input.default = $(this).find(".plugin-forms-input").val();
+                        input.isEmail = true;
+                        break;
+                    case 'price':
+                        input.default = $(this).find(".plugin-forms-input").val();
+                        input.isPrice = true;
+                        break;
+                    case 'address':
+                        input.default = $(this).find(".plugin-forms-input").val();
+                        input.isAddress = true;
+                        break;
+                    case 'selectmultiple':
+                        var options = $(this).find("option").map(function(){
+                            return $(this).val();
+                        });
+                        var labels = $(this).find("option").map(function(){
+                            return $(this).text();
+                        });
+
+                        input.default = $(this).find('select').val();
+                        input.options = [ ];
+                        for (var i = 0; i < options.length; i++) {
+                            input.options.push({value: options[i], label: labels[i]});
+                        }
+                        input.isSelectMultiple = true;
+                        break;
+                    case 'select2':
+                        var options = $(this).find("option").map(function(){
+                            return $(this).val();
+                        });
+                        var labels = $(this).find("option").map(function(){
+                            return $(this).text();
+                        });
+
+                        input.default = $(this).find('select').val();
+                        input.options = [ ];
+                        for (var i = 0; i < options.length; i++) {
+                            input.options.push({value: options[i], label: labels[i]});
+                        }
+                        input.isSelect2 = true;
                         break;
                 }
 
                 settings.cfg._.forms[formIndex].inputs.push(input);
             });
-            
+
             countForms++;
         });
-        
+
         settings.helper.persistSettings('plugin-forms', settings.cfg, true, function(){
             socket.emit('admin.settings.syncPluginForms');
         });

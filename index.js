@@ -15,7 +15,8 @@
 		router,
 		middleware,
 		formids = [],
-		PluginForms = {};
+		PluginForms = {},
+		util = require('util');
 
 	PluginForms.init = function (params, callback) {
 		app = params.app;
@@ -97,9 +98,7 @@
 	PluginForms.logSettings = function () {
 		var config = PluginForms.settings.get();
 		console.log("PluginForms Settings:");
-		for (var p in config) {
-			console.log(typeof config[p], p, " = ", config[p]);
-		}
+		console.log(util.inspect(config, false, null));
 	};
 
 	PluginForms.admin = {
