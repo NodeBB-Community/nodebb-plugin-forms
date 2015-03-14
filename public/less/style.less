@@ -4,7 +4,9 @@
             .plugin-forms-form-panel {
                 border: @brand-primary 1px solid;
                 
-                .plugin-forms-input-label, .plugin-forms-form-title, .plugin-forms-input-options, .plugin-forms-form-id {
+                .plugin-forms-input-label, .plugin-forms-form-title, .plugin-forms-form-id {
+					.pointer;
+
                     border-bottom: dashed #666 1px;
                 }
                 
@@ -23,7 +25,7 @@
                     padding: 3px;
                     padding-bottom: 0;
                     border-top: @brand-success 1px solid;
-                    
+
                     .plugin-forms-input-panel {
                         padding: 16px;
                         padding-right: 6px;
@@ -33,6 +35,15 @@
                         overflow: hidden;
                         margin: 0;
                         margin-bottom: 3px;
+
+						input, textarea, select, radio, checkbox {
+							.form-control;
+
+							&[type='radio'], &[type='checkbox'] {
+								width: unset;
+								height: 1em;
+							}
+						}
 
                         .plugin-forms-btn-edit-input, .plugin-forms-btn-clone-input, .plugin-forms-btn-delete-input {
                             .pointer;
@@ -56,32 +67,34 @@
                         }
 
                         input {
-                            &[type='text'] {
+                            &[type='text'], &[type='time'], &[type='email'], &[type='date'] {
                                 width: 100%;
                                 margin-right: 6px;
                             }
                         }
                         
-                        .popover {
+                        
+                        
+                        textarea {
+							height: 105px;
+                            width: 100%;
+                        }
+
+                        .form-group {
+							select {
+                                width: 300px;
+								height: auto;
+                            }
+                        }
+						
+						.popover {
                             textarea {
                                 resize: none;
                                 height: 105px;
                             }
-                        }
-                        
-                        textarea {
-                            height: 105px;
-                            width: 100%;
-                        }
-                        
-                        select {
-                            width: 145px;
-                        }
-                        
-                        .form-group {
-                            select {
-                                width: 300px;
-                            }
+							select {
+								width: 145px;
+							}
                         }
                     }
                     
