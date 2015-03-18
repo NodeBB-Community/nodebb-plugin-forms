@@ -128,17 +128,20 @@ var addForm = function() {
     $('#plugin-forms-forms-list').append('\
                     <li class="panel panel-default plugin-forms-form-panel">\
                         <div class="panel-heading plugin-forms-form-panel-heading clearfix">\
+                            <button type="button" class="btn btn-default pull-left plugin-forms-btn-toggle-form">\
+                                <i class="fa fa-fw fa-arrow-down"></i>\
+                            </button>\
                             <div class="panel-title pull-left">\
                                 <span class="plugin-forms-form-title">New Form '+ countNewForms +'</span> (ID: <span class="plugin-forms-form-id">'+ countNewForms +'</span>)\
                             </div>\
                             <button type="button" class="btn btn-danger pull-right plugin-forms-btn-delete-form">\
-                                <i class="fa fa-fw fa-times"></i> Delete\
+                                <i class="fa fa-fw fa-times"></i>\
                             </button>\
                             <button type="button" class="btn btn-info pull-right plugin-forms-btn-clone-form">\
-                                <i class="fa fa-fw fa-copy"></i> Clone\
+                                <i class="fa fa-fw fa-copy"></i>\
                             </button>\
                             <button type="button" class="btn btn-success pull-right plugin-forms-btn-edit-form">\
-                                <i class="fa fa-fw fa-cog"></i> Edit\
+                                <i class="fa fa-fw fa-cog"></i>\
                             </button>\
                         </div>\
                         <ul class="panel-body hidden ui-sortable plugin-forms-input-list">\

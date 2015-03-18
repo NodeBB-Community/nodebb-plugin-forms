@@ -94,7 +94,9 @@
             <!-- ENDIF inputs.isInfo -->
             
             <!-- END inputs -->
+
         </div>
+
         <button class="btn btn-success">Submit Form</button>
         <button class="btn btn-warning">Clear Form</button>
     </div>

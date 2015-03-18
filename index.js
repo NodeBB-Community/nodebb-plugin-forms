@@ -6,7 +6,9 @@
 		path = require('path'),
 		meta = module.parent.require('./meta'),
 		Settings = module.parent.require('./settings'),
+		db = module.parent.require('./database'),
 		user = module.parent.require('./user'),
+		Topics = module.parent.require('./topics'),
 		plugins = module.parent.require('./plugins'),
 		templates = module.parent.require('templates.js'),
 		SocketAdmin = module.parent.require('./socket.io/admin'),
@@ -101,15 +103,67 @@
 		console.log(util.inspect(config, false, null));
 	};
 
-	PluginForms.admin = {
-		menu: function(custom_header, callback) {
-			custom_header.plugins.push({
-				"route": '/plugins/plugin-forms',
-				"icon": 'fa-edit',
-				"name": 'Forms'
-			});
+	PluginForms.hooks = {
+		filter: {
+			admin: {
+				header: {
+					build: function(custom_header, callback) {
+						custom_header.plugins.push({
+							"route": '/plugins/plugin-forms',
+							"icon": 'fa-edit',
+							"name": 'Forms'
+						});
 
-			callback(null, custom_header);
+						callback(null, custom_header);
+					}
+				}
+			},
+			parse: {
+				post: function(data, callback) {
+					if (data && data.postData && data.postData.content) {
+						user.isAdministrator(data.postData.uid, function(err, isAdmin) {
+							if (!err && isAdmin) {
+								db.getObjectField('topic:' + data.postData.tid, 'mainPid', function (err, pid) {
+									if (!err && data.postData.pid === pid) {
+										renderPost(data.postData.content, function (err, content) {
+											data.postData.content = content;
+											return callback(null, data);
+										});
+									}else{
+										data.postData.content = data.postData.content.replace(/\(form:(.+)\)/g, '');
+										return callback(null, data);
+									}
+								});
+							}else{
+								data.postData.content = data.postData.content.replace(/\(form:(.+)\)/g, '');
+								return callback(null, data);
+							}
+						});
+					}else{
+						data.postData.content = data.postData.content.replace(/\(form:(.+)\)/g, '');
+						return callback(null, data);
+					}
+				}
+			}
+		}
+	}
+
+	var renderPost = function (data, callback) {
+		var pattern = /\(form:(.+)\)/;
+		var matches = data.match(pattern) || null;
+		if (!matches) {
+			return callback(null, data);
+		}
+		var formIndex = formids.indexOf(matches[1]);
+		var formdata = !!~formIndex ? PluginForms.settings.get('forms')[formIndex] : null;
+		if (formdata) {
+			app.render('views/form', formdata, function(err, form){
+				data = form ? data.replace(matches[0], form) : data.replace(matches[0], 'test');
+				return callback(null, data);
+			});
+		}else{
+			data = data.replace(/\(form:(.+)\)/g, '');
+			return callback(null, data);
 		}
 	}
 
