@@ -3,25 +3,14 @@
         <div class="col-lg-9">
             <div class="panel panel-primary" id="plugin-forms-forms-panel">
                 <div class="panel-heading">
-                    <span class="panel-title">
-                        Forms
-                    </span>
+                    <span class="panel-title">Forms</span>
                 </div>
                 <div class="panel-body">
-                    <p>
-                        Create forms for doing awesome things on your forum.
-                    </p>
-                    <p>
-                        To add elements to a form, drag the element from the right onto the form. You can also drag elements between forms.
-                    </p>
-                    <p>
-                        You can click underlined labels to edit them.
-                    </p>
-                    <p>
-                        Forms can be viewed at '/forms/[ID]' or parsed into a post using '(form)[ID]'
-                    </p>
-                    <ul class="ui-sortable" id="plugin-forms-forms-list">
-                    </ul>
+                    <p>Create forms for doing awesome things on your forum.</p>
+                    <p>To add elements to a form, drag the element from the right onto the form. You can also drag elements between forms.</p>
+                    <p>You can click underlined labels to edit them.</p>
+                    <p>Forms can be viewed at '/forms/[ID]' or parsed into a post using '(form)[ID]'</p>
+                    <ul class="ui-sortable" id="plugin-forms-forms-list"></ul>
                     <button type="button" class="btn btn-success form-control" id="plugin-forms-add-form">
                         <i class="fa fa-fw fa-plus"></i> Add a Form
                     </button>
@@ -31,17 +20,17 @@
         <div class="col-lg-3">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    Action Panel
+                    <span class="panel-title">Action Panel</span>
                 </div>
                 <div class="panel-body">
                     <button type="button" class="btn btn-success form-control" id="save">
-                        <i class="fa fa-fw fa-save"></i> Save Forms
+                        <i class="fa fa-fw fa-save"></i><span class="pf-btn-label"> Save Forms</span>
                     </button>
                 </div>
             </div>
             <div class="panel panel-primary plugin-forms-inputs-panel">
                 <div class="panel-heading">
-                    Inputs
+                    <span class="panel-title">Inputs</span>
                 </div>
                 <div class="panel-body">
                     <div class="container">
@@ -96,13 +85,13 @@
             </div>
             <div class="panel panel-primary plugin-forms-inputs-panel">
                 <div class="panel-heading">
-                    Decorations
+                    <span class="panel-title">Decorations</span>
                 </div>
                 <div class="panel-body">
                     <div class="container">
                         <div class="col-lg-6">
                             <div class="btn btn-info btn-draggable" type="info">
-                                <i class="fa fa-fw fa-plus"></i> Text
+                                <i class="fa fa-fw fa-plus"></i> Info
                             </div>
                             <div class="btn btn-info btn-draggable" type="container">
                                 <i class="fa fa-fw fa-plus"></i> Container
@@ -339,7 +328,7 @@ var addInput = function(inputSortable, data) {
 $('body').popover({
     title: function(){
         var type = $(this).parents('.plugin-forms-input-panel').first().attr('type') || 'text';
-        return type.charAt(0).toUpperCase() + type.slice(1) + ' Options';
+        return '<span class="panel-title">' + type.charAt(0).toUpperCase() + type.slice(1) + ' Options' + '</span>';
     },
     selector: '.plugin-forms-btn-edit-input',
     placement: 'bottom',
@@ -358,17 +347,17 @@ $('body').popover({
             case 'email':
             case 'price':
             case 'address':
-                html = 'TODO: Add some options.<br>';
+                html = '<p>TODO: Add some options.</p>';
                 break;
             case 'checkboxes':
             case 'radiogroup':
             case 'select':
             case 'select2':
             case 'selectmultiple':
-                html = '<p>\
+                html = '<div>\
                             <label class="control-label" style="display:inline-block;min-width:90px;">Values</label>\
                             <label class="control-label" style="display:inline-block;min-width:160px;">Labels</label>\
-                        </p>';
+                        </div>';
                 var $pairs = $formGroup.find('.plugin-forms-input-option');
                 for (var i = 0; i < $pairs.length; i++) {
                     html = html + '<div class="plugin-forms-value-label-pairs">\
@@ -384,10 +373,10 @@ $('body').popover({
                 }
                 break;
         }
-        html = html + '<p>\
+        html = html + '<div class="text-center">\
                             <button class="btn btn-primary plugin-forms-btn-options-confirm"><i class="fa fa-fw fa-check"></i></button>\
                             <button class="btn btn-default plugin-forms-btn-options-cancel"><i class="fa fa-fw fa-times"></i></button>\
-                        </p>';
+                        </div>';
         html = $.parseHTML(html);
         $(html).on('click', '.plugin-forms-input-add', addArray).on('click', '.plugin-forms-input-remove', removeArray);
         return $(html);
@@ -396,7 +385,7 @@ $('body').popover({
 
 var removeArray = function(e) {
     e.preventDefault();
-    if ($(this).parent().parent().children('div').length > 1) {
+    if ($(this).parent().parent().children('div.plugin-forms-value-label-pairs').length > 1) {
         $(this).parent().remove();
     }
 };
@@ -709,25 +698,35 @@ require(['settings'], function(settings) {
         });
     });
 
-    $('#plugin-forms-forms-list').on('click', '.plugin-forms-btn-edit-form', function(e) {
+    var toggleFormPanel = function (e) {
+        var $panel = $(this).closest('.plugin-forms-form-panel');
+        if ( !$panel.is('.ui-sortable-helper') && e.target === this) {
+            $panel.children('.panel-body').toggleClass('hidden');
+            var $toggle = $panel.find('.plugin-forms-btn-toggle-form');
+            $toggle.children('i').toggleClass('fa-arrow-down');
+            $toggle.children('i').toggleClass('fa-arrow-up');
+            $toggle.blur();
+        }
+    }
+
+    $('#plugin-forms-forms-list').on('click', '.btn', function(e){
         e.preventDefault();
-        $(this).parent().parent().children('.panel-body').toggleClass('hidden');
-    }).sortable({
+    })
+    .on('mouseup', '.plugin-forms-btn-toggle-form, .plugin-forms-form-panel-heading', toggleFormPanel)
+    .sortable({
         handle: ".plugin-forms-form-panel-heading",
         placeholder: "ui-state-highlight",
         forceHelperSize: true,
         forcePlaceholderSize: true,
         revert: true,
-        start: function(event, ui) {
-            $(this).find('.panel-body').each(function(){
-                $(this).addClass('hidden');
-            });
+        start: function(e, ui) {
+            $(this).find('.panel-body').addClass('hidden');
+            $(this).find('.plugin-forms-btn-toggle-form').blur().find('i').addClass('fa-arrow-down').removeClass('fa-arrow-up');
             ui.helper.css('height', 50);
             $(this).sortable('refreshPositions');
             $('.popover').popover('destroy');
         }
     }).on('click', '.plugin-forms-btn-delete-form', function (e) {
-        e.preventDefault();
         var element = $(this).parents('li').first(),
             form = element.find('.plugin-forms-form-title').text();
         bootbox.confirm('Are you sure?<p><span class="text-danger strong">This will delete form "' + form + '"</span></p>', function(result) {
@@ -736,7 +735,6 @@ require(['settings'], function(settings) {
             }
         });
     }).on('click', '.plugin-forms-btn-clone-form', function (e) {
-        e.preventDefault();
         var $form = $(this).parents('.plugin-forms-form-panel').first(),
             $newForm = $form.clone(),
             formtitle = $newForm.find('.plugin-forms-form-title').text(),
@@ -749,7 +747,6 @@ require(['settings'], function(settings) {
         
         makeInputSortable($newForm.find('.plugin-forms-input-list'));
     }).on('click', '.plugin-forms-btn-delete-input', function (e) {
-        e.preventDefault();
         var element = $(this).parents('li').first(),
             input = element.find('.plugin-forms-input-label').first().text();
         bootbox.confirm('Are you sure?<br><span class="text-danger strong">This will delete input "' + input + '"</span>', function(result) {
@@ -758,7 +755,6 @@ require(['settings'], function(settings) {
             }
         });
     }).on('click', '.plugin-forms-btn-clone-input', function (e) {
-        e.preventDefault();
         var $input = $(this).parents('.plugin-forms-input-panel').first(),
             $newInput = $input.clone(),
             text = $newInput.find('.plugin-forms-input-label').text();
@@ -769,7 +765,6 @@ require(['settings'], function(settings) {
     });
 
     $('#plugin-forms-add-form').click(function(e){
-        e.preventDefault();
         addForm();
     });
 
