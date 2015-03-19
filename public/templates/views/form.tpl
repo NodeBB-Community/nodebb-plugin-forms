@@ -1,4 +1,4 @@
-<form id="{formid}" class="plugin-forms-view-form">
+<form id="{formid}" class="plugin-forms-view-form" method="post" action="/forms/post" target="_parent">
     <div class="plugin-forms-view container-fluid">
         <div class="row">
             <div class="col-sm-12">
@@ -100,8 +100,9 @@
 
                     </div>
 
-                    <button class="btn btn-success">Submit Form</button>
+                    <button class="btn btn-success" type="submit">Submit Form</button>
                     <button class="btn btn-warning">Clear Form</button>
+                    <input class="pf-csrf" type="hidden" value="" name="_csrf" />
                 </div>
             </div>
         </div>

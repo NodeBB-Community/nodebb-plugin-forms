@@ -60,33 +60,21 @@
                             border-radius: 24px;
                         }
 
-                        .plugin-forms-option-controls {
-                            position: absolute;
-                            left: 250px;
-
-                            .btn-sm {
-                                line-height: 0.7;
-                                padding: 2px 4px;
-                                margin-top: -3px;
-                            }
-                        }
-
-                        input {
-                            &[type='text'], &[type='time'], &[type='email'], &[type='date'] {
-                                width: 100%;
-                                margin-right: 6px;
-                            }
-                        }
-
-                        textarea {
-							height: 105px;
-                            width: 100%;
-                        }
-
                         .form-group {
 							select {
                                 width: 300px;
 								height: auto;
+                            }
+
+                            input {
+                                &[type='text'], &[type='time'], &[type='email'], &[type='date'] {
+                                    width: 100%;
+                                }
+                            }
+
+                            textarea {
+                                height: 105px;
+                                width: 100%;
                             }
                         }
 
@@ -246,5 +234,32 @@
 .plugin-forms-view-form {
     label {
         display: block;
+    }
+    
+    input, textarea, select, radio, checkbox {
+        .form-control;
+
+        &[type='radio'], &[type='checkbox'] {
+            width: unset;
+            height: 1em;
+        }
+    }
+
+    .form-group {
+        select {
+            width: 300px;
+            height: auto;
+        }
+
+        input {
+            &[type='text'], &[type='time'], &[type='email'], &[type='date'] {
+                width: 300px;
+            }
+        }
+
+        textarea {
+            height: 105px;
+            width: 300px;
+        }
     }
 }

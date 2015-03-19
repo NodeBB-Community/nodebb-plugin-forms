@@ -10,7 +10,6 @@
 		user = module.parent.require('./user'),
 		Topics = module.parent.require('./topics'),
 		plugins = module.parent.require('./plugins'),
-		templates = module.parent.require('templates.js'),
 		SocketAdmin = module.parent.require('./socket.io/admin'),
 		translator = module.parent.require('../public/src/translator'),
 		app,
@@ -34,6 +33,8 @@
 		router.get('/plugin-forms/config', function (req, res) {
 			res.status(200);
 		});
+
+		router.post('/forms/post', middleware.buildHeader, PluginForms.renderPost);
 
 		var defaultSettings = {
 			forms: []
@@ -97,6 +98,14 @@
 		res.render('views/form', data);
 	}
 
+	PluginForms.renderPost = function (req, res, next) {
+		var data = {pairs: []};
+		for (var name in req.body) {
+			data.pairs.push({name: name, value: req.body[name]});
+		}
+		res.render('views/post', data);
+	}
+
 	PluginForms.logSettings = function () {
 		var config = PluginForms.settings.get();
 		console.log("PluginForms Settings:");
@@ -158,7 +167,7 @@
 		var formdata = !!~formIndex ? PluginForms.settings.get('forms')[formIndex] : null;
 		if (formdata) {
 			app.render('views/form', formdata, function(err, form){
-				data = form ? data.replace(matches[0], form) : data.replace(matches[0], 'test');
+				data = form ? data.replace(matches[0], form) : data.replace(matches[0], '');
 				return callback(null, data);
 			});
 		}else{
