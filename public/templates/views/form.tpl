@@ -35,7 +35,7 @@
                             <!-- BEGIN inputs.options -->
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default --> name="{inputs.options.name}"> {inputs.options.label}
+                                    <input type="checkbox" name="{inputs.name}" value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->> {inputs.options.label}
                                 </label>
                             </div>
                             <!-- END inputs.options -->
@@ -47,7 +47,7 @@
                             <label class="control-label">{inputs.label}</label>
                             <select name="{inputs.name}">
                                 <!-- BEGIN inputs.options -->
-                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
+                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> selected="selected"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
                                 <!-- END inputs.options -->
                             </select>
                         </div>
@@ -58,7 +58,7 @@
                             <label class="control-label">{inputs.label}</label>
                             <select multiple name="{inputs.name}">
                                 <!-- BEGIN inputs.options -->
-                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
+                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> selected="selected"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
                                 <!-- END inputs.options -->
                             </select>
                         </div>
@@ -69,7 +69,7 @@
                             <label class="control-label">{inputs.label}</label>
                             <select multiple name="{inputs.name}">
                                 <!-- BEGIN inputs.options -->
-                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
+                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> selected="selected"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
                                 <!-- END inputs.options -->
                             </select>
                         </div>
@@ -81,7 +81,7 @@
                             <!-- BEGIN inputs.options -->
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="{inputs.name}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->> {inputs.options.label} {inputs.options.default}
+                                    <input type="radio" name="{inputs.name}" value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->> {inputs.options.label} {inputs.options.default}
                                 </label>
                             </div>
                             <!-- END inputs.options -->

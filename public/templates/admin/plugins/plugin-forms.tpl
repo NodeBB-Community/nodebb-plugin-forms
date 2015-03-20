@@ -147,7 +147,7 @@
 
 <script type="text/javascript">
 
-var inputTypes = {
+var inputTexts = {
     'text': {display: 'Text', camel: 'Text'},
     'textarea': {display: 'Text Area', camel: 'TextArea'},
     'date': {display: 'Date', camel: 'Date'},
@@ -157,8 +157,8 @@ var inputTypes = {
     'email': {display: 'E-Mail', camel: 'Email'},
     'price': {display: 'Price', camel: 'Price'},
     'address': {display: 'Address', camel: 'Address'},
-    'radiogroup': {display: 'Multiple Choice', camel: 'RadioGroup'},
-    'checkboxes': {display: 'Check Group', camel: 'Checkboxes'},
+    'radiogroup': {display: 'Multiple Choice', camel: 'RadioGroup', single: 'radio'},
+    'checkboxes': {display: 'Check Group', camel: 'Checkboxes', single: 'checkbox'},
     'select': {display: 'Dropdown', camel: 'Select'},
     'select2': {display: 'Select2', camel: 'Select2'},
     'selectmultiple': {display: 'List Box', camel: 'SelectMultiple'}
@@ -243,30 +243,26 @@ var addInput = function(inputSortable, data) {
                         </div>';
             break;
         case 'checkboxes':
-            inputHtml = '<div class="form-group">\
-                         <label class="control-label pfa-input-label">'+ label +'</label>';
-            for (var i = 0; i < options.length; i++) {
-                var value = options[i].value || type + stamp;
-                inputHtml = inputHtml + '<div class="checkbox">\
-                                            <label>\
-                                                <input class="pfa-input-option" type="checkbox" value="'+ value +'"'+ ( options[i].default ? ' checked="checked"' : '' ) +' name="'+ name +'"/>\
-                                                <span class="control-label pfa-option-label">'+ options[i].label +'</span>\
-                                            </label>\
-                                        </div>';
-            }
-            inputHtml = inputHtml + '</div>';
-            break;
         case 'radiogroup':
             inputHtml = '<div class="form-group">\
                          <label class="control-label pfa-input-label">'+ label +'</label>';
-            for (var i = 0; i < options.length; i++) {
-                var value = options[i].value || type + stamp;
-                inputHtml = inputHtml + '<div class="radio">\
-                                            <label>\
-                                                <input class="pfa-input-option" type="radio" value="'+ value +'"'+ ( options[i].default ? ' checked="checked"' : '' ) +' name="'+ name +'"/>\
-                                                <span class="control-label pfa-option-label">'+ options[i].label +'</span>\
-                                            </label>\
-                                        </div>';
+            if (options.length) {
+                for (var i = 0; i < options.length; i++) {
+                    var value = options[i].value || type + stamp;
+                    inputHtml = inputHtml + '<div class="'+ inputTexts[type].single +'">\
+                                                <label>\
+                                                    <input class="pfa-input-option" type="'+ inputTexts[type].single +'" value="'+ value +'"'+ ( options[i].default ? ' checked="checked"' : '' ) +' name="'+ name +'"/>\
+                                                    <span class="control-label pfa-option-label">'+ options[i].label +'</span>\
+                                                </label>\
+                                            </div>';
+                }
+            }else{
+                inputHtml += '<div class="'+ inputTexts[type].single +'">\
+                                    <label>\
+                                        <input class="pfa-input-option" type="'+ inputTexts[type].single +'" value="1" name="'+ name +'"/>\
+                                        <span class="control-label pfa-option-label">Option 1</span>\
+                                    </label>\
+                                </div>';
             }
             inputHtml = inputHtml + '</div>';
             break;
@@ -275,16 +271,6 @@ var addInput = function(inputSortable, data) {
                             <label class="control-label pfa-input-label">'+ label +'</label>\
                             <br><input class="pfa-input" type="'+ type +'" value=""/>\
                         </div>';
-            break;
-        case 'select':
-            inputHtml = '<div class="form-group">\
-                            <label class="control-label pfa-input-label">'+ label +'</label><br>\
-                            <select class="pfa-input" name="'+ name +'">';
-            for (var i = 0; i < options.length; i++) {
-                var value = options[i].value || type + stamp;
-                inputHtml = inputHtml + '<option class="pfa-input-option" value="'+ value +'"'+ ( options[i].default ? ' selected="selected"' : '' ) +'>'+ options[i].label +'</option>';
-            }
-            inputHtml = inputHtml + '</select></div>';
             break;
         case 'time':
             inputHtml = '<div class="form-group">\
@@ -323,14 +309,36 @@ var addInput = function(inputSortable, data) {
                             <br><input class="pfa-input" type="'+ type +'" value="'+ ( data.default || '' ) +'"/>\
                         </div>';
             break;
+        case 'select':
+            inputHtml = '<div class="form-group">\
+                            <label class="control-label pfa-input-label">'+ label +'</label><br>\
+                            <select class="pfa-input" name="'+ name +'">';
+            if (options.length) {
+                for (var i = 0; i < options.length; i++) {
+                    var value = options[i].value || type + stamp;
+                    inputHtml = inputHtml + '<option class="pfa-input-option" value="'+ value +'"'+ ( options[i].default ? ' selected="selected"' : '' ) +'>'+ options[i].label +'</option>';
+                }
+            }else{
+                inputHtml += '<option class="pfa-input-option" value="1">Option 1</option>';
+                inputHtml += '<option class="pfa-input-option" value="2">Option 2</option>';
+                inputHtml += '<option class="pfa-input-option" value="3">Option 3</option>';
+            }
+            inputHtml = inputHtml + '</select></div>';
+            break;
         case 'selectmultiple':
         case 'select2':
             inputHtml = '<div class="form-group">\
                             <label class="control-label pfa-input-label">'+ label +'</label>\
                             <select class="pfa-input" name="'+ name +'" multiple>';
-            for (var i = 0; i < options.length; i++) {
-                var value = options[i].value || type + stamp;
-                inputHtml = inputHtml + '<option class="pfa-input-option" value="'+ value +'"'+ ( options[i].default ? ' selected="selected"' : '' ) +'>'+ options[i].label +'</option>';
+            if (options.length) {
+                for (var i = 0; i < options.length; i++) {
+                    var value = options[i].value || type + stamp;
+                    inputHtml = inputHtml + '<option class="pfa-input-option" value="'+ value +'"'+ ( options[i].default ? ' selected="selected"' : '' ) +'>'+ options[i].label +'</option>';
+                }
+            }else{
+                inputHtml += '<option class="pfa-input-option" value="1">Option 1</option>';
+                inputHtml += '<option class="pfa-input-option" value="2">Option 2</option>';
+                inputHtml += '<option class="pfa-input-option" value="3">Option 3</option>';
             }
             inputHtml = inputHtml + '</select></div>';
             break;
@@ -705,7 +713,7 @@ require(['settings'], function(settings) {
                     label: $(this).find('.pfa-input-label').text() !== 'empty' ? $(this).find('.pfa-input-label').text() : '',
                     name: $(this).find('.pfa-input').attr('name') || $(this).find('.pfa-input-label').text().trim().toLowerCase().replace(/ /g, '-')
                 };
-                input['is' + inputTypes[type].camel] = true;
+                input['is' + inputTexts[type].camel] = true;
                 switch (type) {
                     default:
                     case 'text':
