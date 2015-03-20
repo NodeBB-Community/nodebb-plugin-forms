@@ -1,37 +1,37 @@
 #plugin-forms {
-    #plugin-forms-forms-panel {
-        #plugin-forms-forms-list {
-            .plugin-forms-form-panel {
+    #pfa-forms-panel {
+        #pfa-forms-list {
+            .pfa-form-panel {
                 border: @brand-primary 1px solid;
 
-                .plugin-forms-input-label, .plugin-forms-form-title, .plugin-forms-form-id {
+                .pfa-input-label, .pfa-form-title, .pfa-form-id {
 					.pointer;
 
                     border-bottom: dashed #666 1px;
                 }
 
-                .plugin-forms-form-panel-heading {
+                .pfa-form-panel-heading {
                     text-transform: none;
                     line-height: 34px;
                     padding-right: 7px;
 					padding-left: 7px;
                     background-color: lighten(@brand-info, 35%);
 
-                    .plugin-forms-btn-delete-form, .plugin-forms-btn-clone-form, .plugin-forms-btn-edit-form {
+                    .pfa-btn-delete-form, .pfa-btn-clone-form, .pfa-btn-edit-form {
                         margin-left: 7px;
                     }
 
-					.plugin-forms-btn-toggle-form {
+					.pfa-btn-toggle-form {
 						margin-right: 9px;
 					}
                 }
 
-                .plugin-forms-input-list {
+                .pfa-input-list {
                     padding: 3px;
                     padding-bottom: 0;
                     border-top: @brand-success 1px solid;
 
-                    .plugin-forms-input-panel {
+                    .pfa-input-panel {
                         padding: 16px;
                         padding-right: 6px;
                         border: #efefef 1px solid;
@@ -50,7 +50,7 @@
 							}
 						}
 
-                        .plugin-forms-btn-edit-input, .plugin-forms-btn-clone-input, .plugin-forms-btn-delete-input {
+                        .pfa-btn-edit-input, .pfa-btn-clone-input, .pfa-btn-delete-input {
                             .pointer;
 
                             padding: 3px 4px;
@@ -86,13 +86,13 @@
 							select {
 								width: 145px;
 							}
-                            .plugin-forms-input-add, .plugin-forms-input-remove {
+                            .pfa-input-add, .pfa-input-remove {
                                 margin-top: -4px;
                             }
                         }
                     }
 
-                    .plugin-forms-input-panel.ui-sortable-helper {
+                    .pfa-input-panel.ui-sortable-helper {
                         box-shadow: 0px 2px 4px 0px rgba(165, 165, 165, 0.75);
                         border: @brand-primary 1px solid;
                     }
@@ -127,6 +127,7 @@
                         }
                         input, button {
                             display: inline;
+                            width: unset;
                         }
                         .fa-times-circle:hover {
                             color: #666;
@@ -139,14 +140,14 @@
                             margin-right: 7px;
                         }
                         
-                        .plugin-forms-value-label-pairs {
+                        .pfa-options-array {
                             margin-bottom: 4px;
-                            width: 350px;
+                            width: 500px;
 
-                            .plugin-forms-option-value {
-                                width: 85px;
+                            .pfa-option-name {
+                                width: 160px;
                             }
-                            .plugin-forms-option-label {
+                            .pfa-option-label {
                                 width: 160px;
                             }
                         }
@@ -171,20 +172,26 @@
         }
     }
 
-    #plugin-forms-modal-input {
-        .modal-dialog {
-            width: 720px;
+    .pf-modal-form {
+        .form-horizontal {
+            .control-label {
+                padding-top: 4px;
 
-            .modal-content {
-                .modal-body {
-                    div {
-                        p {
-                            button {
-                                .text-left;
-                                max-width: 150px;
-                                width: 150px;
-                                margin-left: 2px;
-                                margin-right: 2px;
+                .modal-dialog {
+                    width: 720px;
+
+                    .modal-content {
+                        .modal-body {
+                            div {
+                                p {
+                                    button {
+                                        .text-left;
+                                        max-width: 150px;
+                                        width: 150px;
+                                        margin-left: 2px;
+                                        margin-right: 2px;
+                                    }
+                                }
                             }
                         }
                     }
@@ -202,36 +209,37 @@
         padding-left: 0;
         min-height: 55px;
     }
-}
 
-.plugin-forms-inputs-panel {
-    padding: 0;
+    .pfa-inputs-panel {
+        padding: 0;
 
-    .panel-body {
-        padding-left: 8px;
-        padding-right: 8px;
-        padding-bottom: 3px;
+        .panel-body {
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-bottom: 3px;
 
-        .container-fluid, .container {
-            padding: 0;
+            .container-fluid, .container {
+                padding: 0;
 
-            .col-lg-6 {
-                padding-top: 0;
-                padding-bottom: 0;
-                padding-left: 7px;
-                padding-right: 7px;
+                .col-lg-6 {
+                    padding-top: 0;
+                    padding-bottom: 0;
+                    padding-left: 7px;
+                    padding-right: 7px;
+                }
             }
         }
-    }
-    .btn {
-        .text-left;
-        width: 100%;
-        margin-bottom: 15px;
-        box-shadow: 0px 4px 2px 0px rgba(120, 120, 120, 0.75);
+
+        .btn {
+            .text-left;
+            width: 100%;
+            margin-bottom: 15px;
+            box-shadow: 0px 4px 2px 0px rgba(120, 120, 120, 0.75);
+        }
     }
 }
 
-.plugin-forms-view-form {
+.pf-form {
     label {
         display: block;
     }

@@ -101,7 +101,12 @@
 	PluginForms.renderPost = function (req, res, next) {
 		var data = {pairs: []};
 		for (var name in req.body) {
-			data.pairs.push({name: name, value: req.body[name]});
+			if (name !== '_csrf') {
+				if (Array.isArray(req.body[name])) {
+					req.body[name] = JSON.stringify(req.body[name]);
+				}
+				data.pairs.push({name: name, value: req.body[name]});
+			}
 		}
 		res.render('views/post', data);
 	}

@@ -1,5 +1,6 @@
-<form id="{formid}" class="plugin-forms-view-form" method="post" action="/forms/post" target="_parent">
-    <div class="plugin-forms-view container-fluid">
+<script src='https://www.google.com/recaptcha/api.js'></script>
+<form id="{formid}" class="pf-form" method="{method}" action="{action}" target="_parent">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
                 <div class="panel panel-default">
@@ -10,19 +11,21 @@
                     </div>
                     <div class="panel-body">
                     
+                    <!-- TODO: Should this be rendered in the client script, not the templating engine? -->
+                    
                         <!-- BEGIN inputs -->
                         
                         <!-- IF inputs.isText -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <input class="plugin-forms-input" type="text" value="" />
+                            <input class="" type="text" value="{inputs.default}" name="{inputs.name}"/>
                         </div>
                         <!-- ENDIF inputs.isText -->
                         
                         <!-- IF inputs.isTextArea -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <textarea class="plugin-forms-input" value=""></textarea>
+                            <textarea class="" name="{inputs.name}">{inputs.default}</textarea>
                         </div>
                         <!-- ENDIF inputs.isTextArea -->
                         
@@ -32,7 +35,7 @@
                             <!-- BEGIN inputs.options -->
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" value="{inputs.options.label}" name="{inputs.label}"> {inputs.options.label}
+                                    <input type="checkbox"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default --> name="{inputs.options.name}"> {inputs.options.label}
                                 </label>
                             </div>
                             <!-- END inputs.options -->
@@ -42,9 +45,9 @@
                         <!-- IF inputs.isSelect -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <select>
+                            <select name="{inputs.name}">
                                 <!-- BEGIN inputs.options -->
-                                <option value="{inputs.options.value}">{inputs.options.label}</option>
+                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
                                 <!-- END inputs.options -->
                             </select>
                         </div>
@@ -53,13 +56,24 @@
                         <!-- IF inputs.isSelectMultiple -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <select multiple>
+                            <select multiple name="{inputs.name}">
                                 <!-- BEGIN inputs.options -->
-                                <option value="{inputs.options.value}">{inputs.options.label}</option>
+                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
                                 <!-- END inputs.options -->
                             </select>
                         </div>
                         <!-- ENDIF inputs.isSelectMultiple -->
+                        
+                        <!-- IF inputs.isSelect2 -->
+                        <div class="form-group">
+                            <label class="control-label">{inputs.label}</label>
+                            <select multiple name="{inputs.name}">
+                                <!-- BEGIN inputs.options -->
+                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
+                                <!-- END inputs.options -->
+                            </select>
+                        </div>
+                        <!-- ENDIF inputs.isSelect2 -->
 
                         <!-- IF inputs.isRadioGroup -->
                         <div class="form-group">
@@ -67,7 +81,7 @@
                             <!-- BEGIN inputs.options -->
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="{inputs.options.label}" name="{inputs.label}"> {inputs.options.label}
+                                    <input type="radio" name="{inputs.name}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->> {inputs.options.label} {inputs.options.default}
                                 </label>
                             </div>
                             <!-- END inputs.options -->
@@ -99,6 +113,10 @@
                         <!-- END inputs -->
 
                     </div>
+                    
+                    <!-- IF captchasite -->
+                    <div class="g-recaptcha" data-sitekey="{captchasite}"></div>
+                    <!-- ENDIF captchasite -->
 
                     <button class="btn btn-success" type="submit">Submit Form</button>
                     <button class="btn btn-warning">Clear Form</button>
