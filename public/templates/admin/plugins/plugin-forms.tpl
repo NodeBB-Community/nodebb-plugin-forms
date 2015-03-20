@@ -34,74 +34,6 @@
                 </div>
                 <div class="panel-body">
                     <div class="container">
-                        <div class="col-lg-6">
-                            <div class="btn btn-info btn-draggable" type="text">
-                                <i class="fa fa-fw fa-plus"></i> Text
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="checkboxes">
-                                <i class="fa fa-fw fa-plus"></i> Checkboxes
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="date">
-                                <i class="fa fa-fw fa-plus"></i> Date
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="time">
-                                <i class="fa fa-fw fa-plus"></i> Time
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="url">
-                                <i class="fa fa-fw fa-plus"></i> Link
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="price">
-                                <i class="fa fa-fw fa-plus"></i> Price
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="selectmultiple">
-                                <i class="fa fa-fw fa-plus"></i> Multiple Select
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="btn btn-info btn-draggable" type="textarea">
-                                <i class="fa fa-fw fa-plus"></i> Text Area
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="radiogroup">
-                                <i class="fa fa-fw fa-plus"></i> Multiple Choice
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="select">
-                                <i class="fa fa-fw fa-plus"></i> Dropdown
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="number">
-                                <i class="fa fa-fw fa-plus"></i> Number
-                            </div>
-                            <div  class="btn btn-info btn-draggable" type="email">
-                                <i class="fa fa-fw fa-plus"></i> Email
-                            </div>
-                            <div  class="btn btn-info btn-draggable" type="address">
-                                <i class="fa fa-fw fa-plus"></i> Address
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="select2">
-                                <i class="fa fa-fw fa-plus"></i> Select2
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="panel panel-primary pfa-inputs-panel">
-                <div class="panel-heading">
-                    <span class="panel-title">Decorations</span>
-                </div>
-                <div class="panel-body">
-                    <div class="container">
-                        <div class="col-lg-6">
-                            <div class="btn btn-info btn-draggable" type="info">
-                                <i class="fa fa-fw fa-plus"></i> Info
-                            </div>
-                            <div class="btn btn-info btn-draggable" type="container">
-                                <i class="fa fa-fw fa-plus"></i> Container
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="btn btn-info btn-draggable" type="divider">
-                                <i class="fa fa-fw fa-plus"></i> Divider
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -163,6 +95,22 @@ var inputTexts = {
     'select2': {display: 'Select2', camel: 'Select2'},
     'selectmultiple': {display: 'List Box', camel: 'SelectMultiple'}
 }
+
+var initInputButtons = function () {
+    for (var inputType in inputTexts) {
+        $('.pfa-inputs-panel').find('.container').append(makeInputPill(inputType));
+    }
+}
+
+var makeInputPill = function (inputType) {
+    return $.parseHTML('<div class="col-lg-6">\
+                            <div class="btn btn-info btn-draggable" type="'+ inputType +'">\
+                                <i class="fa fa-fw fa-plus"></i><span>'+ inputTexts[inputType].display +'</span>\
+                            </div>\
+                        </div>');
+}
+
+initInputButtons();
 
 var countNewForms = 0;
 var addForm = function() {
@@ -344,15 +292,10 @@ var addInput = function(inputSortable, data) {
             break;
     }
     var html = '<li class="panel panel-default pfa-input-panel clearfix" type="'+ type +'">\
-                    <button type="button" class="btn btn-danger pull-right pfa-btn-delete-input">\
-                        <i class="fa fa-fw fa-times"></i>\
-                    </button>\
-                    <button type="button" class="btn btn-info pull-right pfa-btn-clone-input">\
-                        <i class="fa fa-fw fa-copy"></i>\
-                    </button>\
-                    <button type="button" class="btn btn-success pull-right pfa-btn-edit-input" data-toggle="popover">\
-                        <i class="fa fa-fw fa-cog"></i>\
-                    </button>\
+                    <button type="button" class="btn btn-danger pull-right  pfa-btn-input pfa-btn-delete-input"><i class="fa fa-fw fa-times"></i></button>\
+                    <button type="button" class="btn btn-info pull-right    pfa-btn-input pfa-btn-clone-input"><i class="fa fa-fw fa-copy"></i></button>\
+                    <button type="button" class="btn btn-success pull-right pfa-btn-input pfa-btn-edit-input" data-toggle="popover"><i class="fa fa-fw fa-cog"></i></button>\
+                    <button type="button" class="btn btn-default pull-right pfa-btn-input pfa-btn-require-input" data-require="'+ ( data.require ? 'true' : 'false' ) +'"><span class="pfa-btn-span">Require </span><i class="fa fa-fw fa-'+ ( data.require ? 'check-' : '' ) +'square-o"></i></button>\
                     '+ inputHtml +'\
                 </li>';
     html = $.parseHTML(html);
@@ -644,13 +587,21 @@ $('#pfa-forms-list').on('click', '.btn', function (e) {
         }
     });
 }).on('click', '.pfa-btn-clone-input', function (e) {
-    var $input = $(this).parents('.pfa-input-panel').first(),
+    var $input = $(this).closest('.pfa-input-panel'),
         $newInput = $input.clone(),
         text = $newInput.find('.pfa-input-label').text();
     
     $newInput.find('.pfa-input-label').text(text + ' Clone');
     restampChecks($newInput);
     $newInput.insertAfter($input);
+}).on('click', '.pfa-btn-require-input', function (e) {
+    if ($(this).data('require')) {
+        $(this).data('require', false);
+        $(this).find('i').removeClass('fa-check-square-o').addClass('fa-square-o');
+    }else{
+        $(this).data('require', true);
+        $(this).find('i').addClass('fa-check-square-o').removeClass('fa-square-o');
+    }
 });
 
 $('#pfa-add-form').click(addForm);
@@ -711,7 +662,8 @@ require(['settings'], function(settings) {
                 input = {
                     type: type,
                     label: $(this).find('.pfa-input-label').text() !== 'empty' ? $(this).find('.pfa-input-label').text() : '',
-                    name: $(this).find('.pfa-input').attr('name') || $(this).find('.pfa-input-label').text().trim().toLowerCase().replace(/ /g, '-')
+                    name: $(this).find('.pfa-input').attr('name') || $(this).find('.pfa-input-label').text().trim().toLowerCase().replace(/ /g, '-'),
+                    require: $(this).find('[data-require]').data('require')
                 };
                 input['is' + inputTexts[type].camel] = true;
                 switch (type) {

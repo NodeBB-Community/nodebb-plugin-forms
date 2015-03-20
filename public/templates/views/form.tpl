@@ -1,5 +1,5 @@
 <script src='https://www.google.com/recaptcha/api.js'></script>
-<form id="{formid}" class="pf-form" method="{method}" action="{action}" target="_parent">
+<form id="pf-{formid}" class="pf-form" method="{method}" action="{action}" target="_parent">
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
@@ -18,14 +18,14 @@
                         <!-- IF inputs.isText -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <input class="" type="text" value="{inputs.default}" name="{inputs.name}"/>
+                            <input class="" type="text" value="{inputs.default}" name="{inputs.name}"<!-- IF inputs.require --> required<!-- ENDIF inputs.require -->/>
                         </div>
                         <!-- ENDIF inputs.isText -->
                         
                         <!-- IF inputs.isTextArea -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <textarea class="" name="{inputs.name}">{inputs.default}</textarea>
+                            <textarea class="" name="{inputs.name}"<!-- IF inputs.require --> required<!-- ENDIF inputs.require -->>{inputs.default}</textarea>
                         </div>
                         <!-- ENDIF inputs.isTextArea -->
                         
@@ -35,7 +35,11 @@
                             <!-- BEGIN inputs.options -->
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" name="{inputs.name}" value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->> {inputs.options.label}
+                                    <input type="checkbox" name="{inputs.name}" value="{inputs.options.value}"
+                                    <!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->
+                                    <!-- IF @first -->
+                                        <!-- IF inputs.require --> data-parsley-mincheck="1"<!-- ENDIF inputs.require -->
+                                    <!-- ENDIF @first -->> {inputs.options.label}
                                 </label>
                             </div>
                             <!-- END inputs.options -->
@@ -45,7 +49,7 @@
                         <!-- IF inputs.isSelect -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <select name="{inputs.name}">
+                            <select name="{inputs.name}"<!-- IF inputs.require --> required<!-- ENDIF inputs.require -->>
                                 <!-- BEGIN inputs.options -->
                                 <option value="{inputs.options.value}"<!-- IF inputs.options.default --> selected="selected"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
                                 <!-- END inputs.options -->
@@ -56,7 +60,7 @@
                         <!-- IF inputs.isSelectMultiple -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <select multiple name="{inputs.name}">
+                            <select multiple name="{inputs.name}"<!-- IF inputs.require --> required<!-- ENDIF inputs.require -->>
                                 <!-- BEGIN inputs.options -->
                                 <option value="{inputs.options.value}"<!-- IF inputs.options.default --> selected="selected"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
                                 <!-- END inputs.options -->
@@ -67,9 +71,9 @@
                         <!-- IF inputs.isSelect2 -->
                         <div class="form-group">
                             <label class="control-label">{inputs.label}</label>
-                            <select multiple name="{inputs.name}">
+                            <select multiple name="{inputs.name}"<!-- IF inputs.require --> required<!-- ENDIF inputs.require -->>
                                 <!-- BEGIN inputs.options -->
-                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> selected="selected"<!-- ENDIF inputs.options.default -->>{inputs.options.label}</option>
+                                <option value="{inputs.options.value}"<!-- IF inputs.options.default --> selected="selected"<!-- ENDIF inputs.options.default --><!-- IF inputs.require --> required<!-- ENDIF inputs.require -->>{inputs.options.label}</option>
                                 <!-- END inputs.options -->
                             </select>
                         </div>
@@ -81,7 +85,11 @@
                             <!-- BEGIN inputs.options -->
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="{inputs.name}" value="{inputs.options.value}"<!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->> {inputs.options.label} {inputs.options.default}
+                                    <input type="radio" name="{inputs.name}" value="{inputs.options.value}"
+                                    <!-- IF inputs.options.default --> checked="checked"<!-- ENDIF inputs.options.default -->
+                                    <!-- IF @first -->
+                                        <!-- IF inputs.require --> data-parsley-mincheck="1"<!-- ENDIF inputs.require -->
+                                    <!-- ENDIF @first -->> {inputs.options.label} {inputs.options.default}
                                 </label>
                             </div>
                             <!-- END inputs.options -->
@@ -126,3 +134,11 @@
         </div>
     </div>
 </form>
+
+<script type="text/javascript">
+
+require(['//cdnjs.cloudflare.com/ajax/libs/parsley.js/2.0.7/parsley.min.js'], function (Parsley) {
+    console.log($('pf-{formid}').parsley());
+});
+
+</script>
