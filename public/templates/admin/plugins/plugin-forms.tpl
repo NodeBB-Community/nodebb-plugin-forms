@@ -647,15 +647,23 @@ require(['settings'], function(settings) {
         $('#pfa-forms-list').children().each(function(){
             var formid = $(this).find('.pfa-form-id').text() || 'form' + countForms,
                 title = $(this).find('.pfa-form-title').text() || 'form' + countForms,
-                type, input,
-                formIndex = settings.cfg._.forms.push({
-                    'formid': formid,
-                    title: title,
-                    inputs: [ ],
-                    action: $(this).find('input[name="action"]').val() || 'post',
-                    method: $(this).find('input[name="method"]').val() || '/forms/post',
-                    captchasite: $(this).find('input[name="captchasite"]').val()
-                }) - 1;
+                type, input, formIndex;
+
+            for (var i = 0; i < settings.cfg._.forms.length; i++) {
+                if (settings.cfg._.forms[i].formid === formid) {
+                    formid += '_';
+                    i = -1;
+                }
+            }
+
+            formIndex = settings.cfg._.forms.push({
+                formid: formid,
+                title: title,
+                inputs: [ ],
+                action: $(this).find('input[name="action"]').val() || 'post',
+                method: $(this).find('input[name="method"]').val() || '/forms/post',
+                captchasite: $(this).find('input[name="captchasite"]').val()
+            }) - 1;
 
             $(this).find('.pfa-input-panel').each(function(){
                 type = $(this).attr('type');
