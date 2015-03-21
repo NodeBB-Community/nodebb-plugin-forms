@@ -143,11 +143,12 @@ var addForm = function() {
     .sortable("refresh").on('mousedown', '.popover', function(e){
         e.stopPropagation();
     });
-    makeInputSortable($('.pfa-input-list').last());
+    makeInputListSortable($('.pfa-input-list').last());
+    makeFormHeaderDroppable($('.pfa-form-panel-heading').last());
     return $('#pfa-forms-list').children().last();
 }
 
-var makeInputSortable = function(element) {
+var makeInputListSortable = function (element) {
     $(element).sortable({
         placeholder: "ui-state-highlight",
         connectWith: ".pfa-input-list",
@@ -160,8 +161,26 @@ var makeInputSortable = function(element) {
         receive: function(event, ui) {
             if (event.target === this && ui.item.is('.btn')) {
                 addInput(this);
-                
             }
+        }
+    });
+}
+
+var makeFormHeaderDroppable = function (element) {
+    $(element).droppable({
+        accept: '.btn-draggable[type]',
+        greedy: true,
+        drop: function (event, ui) {
+            //This works, but has bug:
+            //http://bugs.jqueryui.com/ticket/6259
+            //if (event.target === this) {
+                //var $panel = $(this).closest('.pfa-form-panel'),
+                //    $inputListSortable = $panel.find('.pfa-input-list');
+                //$inputListSortable.prepend(ui.helper.clone());
+                //$panel.find('.panel-body').removeClass('hidden');
+                //$panel.find('.pfa-btn-toggle-form').blur().find('i').addClass('fa-arrow-up').removeClass('fa-arrow-down');
+                //addInput($inputListSortable);
+            //}
         }
     });
 }
@@ -577,7 +596,7 @@ $('#pfa-forms-list').on('click', '.btn', function (e) {
     restampChecks($newForm);
     $newForm.insertAfter($form);
     
-    makeInputSortable($newForm.find('.pfa-input-list'));
+    makeInputListSortable($newForm.find('.pfa-input-list'));
 }).on('click', '.pfa-btn-delete-input', function (e) {
     var element = $(this).parents('li').first(),
         input = element.find('.pfa-input-label').first().text();
