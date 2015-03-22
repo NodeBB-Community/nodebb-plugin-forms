@@ -39,45 +39,23 @@
             </div>
         </div>
     </div>
-    
-    <div class="modal fade pf-modal-form" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title pf-modal-form-title"></h4>
-                </div>
-                <div class="modal-body form-horizontal">
-                    <div class="form-group">
-                        <label for="inputEmail3" class="col-sm-4 control-label">Form Method</label>
-                        <div class="col-sm-8">
-                            <input type="text" name="method">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="inputPassword3" class="col-sm-4 control-label">Form Action</label>
-                        <div class="col-sm-8">
-                            <input type="text" name="action">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="inputPassword3" class="col-sm-4 control-label">Captcha Site Code</label>
-                        <div class="col-sm-8">
-                            <input type="text" name="captchasite">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary pf-modal-form-save">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+<!-- IMPORT admin/plugins/partials/modal-form.tpl -->
+<!-- IMPORT admin/plugins/partials/modal-input.tpl -->
 </form>
 
 <script type="text/javascript">
+
+// TODO: Move all this code to .js files.
+
+var $pluginForms = $('#plugin-forms'),
+    $modalForm = $('#pf-modal-form'),
+    $modalInput = $('#pfa-modal-input'),
+    $modalInputTitle = $('#pfa-modal-input-title'),
+    $modalInputName = $('#pfa-modal-input-name'),
+    $modalInputArray = $('#pfa-modal-input-array'),
+    $modalInputSave = $('#pfa-modal-input-save'),
+    $openFormPanel,
+    $openInputPanel;
 
 var inputTexts = {
     'text': {display: 'Text', camel: 'Text'},
@@ -122,17 +100,11 @@ var addForm = function() {
                                 <i class="fa fa-fw fa-arrow-down"></i>\
                             </button>\
                             <div class="panel-title pull-left">\
-                                <span class="pfa-form-title">New Form '+ countNewForms +'</span> (ID: <span class="pfa-form-id">'+ countNewForms +'</span>)\
+                                    <span class="pfa-form-title">New Form '+ countNewForms +'</span> (ID: <span class="pfa-form-id">'+ countNewForms +'</span>)\
                             </div>\
-                            <button type="button" class="btn btn-danger pull-right pfa-btn-delete-form">\
-                                <i class="fa fa-fw fa-times"></i>\
-                            </button>\
-                            <button type="button" class="btn btn-info pull-right pfa-btn-clone-form">\
-                                <i class="fa fa-fw fa-copy"></i>\
-                            </button>\
-                            <button type="button" class="btn btn-success pull-right pfa-btn-edit-form">\
-                                <i class="fa fa-fw fa-cog"></i>\
-                            </button>\
+                            <button type="button" class="btn btn-danger pull-right pfa-btn-delete-form"><i class="fa fa-fw fa-times"></i></button>\
+                            <button type="button" class="btn btn-info pull-right pfa-btn-clone-form"><i class="fa fa-fw fa-copy"></i></button>\
+                            <button type="button" class="btn btn-success pull-right pfa-btn-edit-form"><i class="fa fa-fw fa-cog"></i></button>\
                         </div>\
                         <input type="hidden" name="method" value="post">\
                         <input type="hidden" name="action" value="/forms/post">\
@@ -146,6 +118,23 @@ var addForm = function() {
     makeInputListSortable($('.pfa-input-list').last());
     makeFormHeaderDroppable($('.pfa-form-panel-heading').last());
     return $('#pfa-forms-list').children().last();
+}
+
+var makeFormsListSortable = function () {
+    $('#pfa-forms-list').sortable({
+        handle: ".pfa-form-panel-heading",
+        placeholder: "ui-state-highlight",
+        forceHelperSize: true,
+        forcePlaceholderSize: true,
+        revert: true,
+        start: function(e, ui) {
+            $(this).find('.panel-body').addClass('hidden');
+            $(this).find('.pfa-btn-toggle-form').blur().find('i').addClass('fa-arrow-down').removeClass('fa-arrow-up');
+            ui.helper.css('height', 50);
+            $(this).sortable('refreshPositions');
+            $('.popover').popover('destroy');
+        }
+    });
 }
 
 var makeInputListSortable = function (element) {
@@ -313,7 +302,7 @@ var addInput = function(inputSortable, data) {
     var html = '<li class="panel panel-default pfa-input-panel clearfix" type="'+ type +'">\
                     <button type="button" class="btn btn-danger pull-right  pfa-btn-input pfa-btn-delete-input"><i class="fa fa-fw fa-times"></i></button>\
                     <button type="button" class="btn btn-info pull-right    pfa-btn-input pfa-btn-clone-input"><i class="fa fa-fw fa-copy"></i></button>\
-                    <button type="button" class="btn btn-success pull-right pfa-btn-input pfa-btn-edit-input" data-toggle="popover"><i class="fa fa-fw fa-cog"></i></button>\
+                    <button type="button" class="btn btn-success pull-right pfa-btn-input pfa-btn-edit-input"><i class="fa fa-fw fa-cog"></i></button>\
                     <button type="button" class="btn btn-default pull-right pfa-btn-input pfa-btn-require-input" data-require="'+ ( data.require ? 'true' : 'false' ) +'"><span class="pfa-btn-span">Require </span><i class="fa fa-fw fa-'+ ( data.require ? 'check-' : '' ) +'square-o"></i></button>\
                     '+ inputHtml +'\
                 </li>';
@@ -325,86 +314,97 @@ var addInput = function(inputSortable, data) {
     }
 }
 
-// TODO: Replace these popovers with partial modals.
-$('#plugin-forms').popover({
-    selector: '.pfa-btn-edit-input',
-    title: function(){
-        var type = $(this).parents('.pfa-input-panel').first().attr('type') || 'text';
-        return '<span class="panel-title">' + type.charAt(0).toUpperCase() + type.slice(1) + ' Options' + '</span>';
-    },
-    placement: 'bottom',
-    html: 'true',
-    content: function(){
-        var type = $(this).parents('.pfa-input-panel').first().attr('type') || 'text',
-            $formGroup = $(this).closest('.pfa-input-panel').find('.form-group').first(),
-            html;
-        switch (type) {
-            case 'text':
-            case 'textarea':
-            case 'date':
-            case 'time':
-            case 'number':
-            case 'url':
-            case 'email':
-            case 'price':
-            case 'address':
-                html = '<p>TODO: Add some options.</p>';
-                break;
-            case 'radiogroup':
-            case 'checkboxes':
-            case 'select':
-            case 'select2':
-            case 'selectmultiple':
-                var $pairs = $formGroup.find('.pfa-input-option');
-                var name = $($pairs[0]).attr('name') || $formGroup.find('select').attr('name');
-                html = '<div>\
-                            <label class="control-label" style="display:inline-block;min-width:90px;">Name</label>\
-                        </div>\
-                            <input class="pfa-option-name" value="'+ ( name ) +'"/>\
-                        <div>\
-                        </div>\
-                            <label class="control-label" style="display:inline-block;min-width:90px;">Values</label>\
-                            <label class="control-label" style="display:inline-block;min-width:160px;">Labels</label>\
-                        </div>';
-                for (var i = 0; i < $pairs.length; i++) {
-                    html = html + '<div class="pfa-options-array">\
-                            <input class="pfa-option-value" value="'+ ( $($pairs[i]).attr('value') || '' ) +'"/>\
-                            <input class="pfa-option-label" value="'+ ( $($pairs[i]).text() || $($pairs[i]).next().text() ) +'"/>\
-                            <button class="pfa-input-add btn btn-success">\
-                                <i class="fa fa-plus"></i>\
-                            </button>\
-                            <button class="pfa-input-remove btn btn-danger">\
-                                <i class="fa fa-times"></i>\
-                            </button>\
-                        </div>';
-                }
-                break;
+$pluginForms.on('click', '.pfa-btn-edit-input', function (e) {
+    $openInput = $(e.target).closest('.pfa-input-panel');
+
+    var type = $openInput.attr('type') || 'text',
+        $formGroup = $openInput.find('.form-group').first(),
+        $pairs = $formGroup.find('.pfa-input-option'),
+        name = $($pairs[0]).attr('name') || $formGroup.find('select, .pfa-input').attr('name');
+
+    $modalInputArray.empty();
+    $modalInputTitle.text(inputTexts[type].display + ' Settings');
+    $modalInputName.val(name);
+    if ($pairs.length) {
+        $modalInputArray.append('<div>\
+                                    <label class="control-label" style="display:inline-block;min-width:170px;">Values</label>\
+                                    <label class="control-label" style="display:inline-block;min-width:170px;">Labels</label>\
+                                </div>');
+        for (var i = 0; i < $pairs.length; i++) {
+            $modalInputArray.append('<div class="pfa-modal-input-array-element">\
+                                        <input class="pfa-option-value" value="'+ ( $($pairs[i]).attr('value') || '' ) +'"/>\
+                                        <input class="pfa-option-label" value="'+ ( $($pairs[i]).text() || $($pairs[i]).next().text() ) +'"/>\
+                                        <button class="pfa-btn-option-array-add btn btn-success"><i class="fa fa-plus"></i></button>\
+                                        <button class="pfa-btn-option-array-remove btn btn-danger"><i class="fa fa-times"></i></button>\
+                                        <button class="pfa-btn-option-array-up btn btn-default"><i class="fa fa-arrow-up"></i></button>\
+                                        <button class="pfa-btn-option-array-down btn btn-default"><i class="fa fa-arrow-down"></i></button>\
+                                    </div>');
         }
-        html = html + '<div class="text-center">\
-                            <button class="btn btn-primary pfa-btn-options-confirm"><i class="fa fa-fw fa-check"></i> Save</button>\
-                            <button class="btn btn-default pfa-btn-options-cancel"><i class="fa fa-fw fa-times"></i> Cancel</button>\
-                        </div>';
-        html = $.parseHTML(html);
-        $(html).on('click', '.pfa-input-add', addArray).on('click', '.pfa-input-remove', removeArray);
-        return $(html);
     }
+    $modalInput.modal('show');
+
+}).on('click', '#pfa-modal-input-save', function (e) {
+    var type = $openInput.attr('type') || 'text',
+        $formGroup = $openInput.find('.form-group').first(),
+        label = $formGroup.find('.pfa-input-label').text() || type.charAt(0).toUpperCase() + type.slice(1) + ' Label',
+        $input = $formGroup.find('.pfa-input'),
+        values = $modalInput.find('.pfa-option-value').map(function(i, el) { return $(el).val(); }),
+        labels = $modalInput.find('.pfa-option-label').map(function(i, el) { return $(el).val(); }),
+        names = $modalInput.find('.pfa-option-name').map(function(i, el) { return $(el).val(); }),
+        name = $modalInputName.val() || type + stamp,
+        stamp = Date.now();
+
+    $input.attr('name', name);
+    if (values) {
+        if (type === 'checkboxes' || type === 'radiogroup') {
+            type = inputTexts[type].single;
+            $formGroup.find('.' + type).remove();
+            $.each(values, function(i){
+                $formGroup.append('<div class="'+ type +'">\
+                                    <label>\
+                                        <input class="pfa-input-option" value="'+ values[i] +'" type="'+ type +'" name="'+ name +'"/>\
+                                        <span class="control-label pfa-option-label">'+ labels[i] +'</span>\
+                                    </label>\
+                                </div>');
+            });
+        }else{
+            $input.empty();
+            $.each(values, function(i){
+                $input.append('<option class="pfa-input-option" value="'+ values[i] +'">'+ labels[i] +'</option>');
+            });
+        }
+    }
+    $modalInput.modal('hide');
 });
 
 var removeArray = function(e) {
-    e.preventDefault();
-    if ($(this).parent().parent().children('div.pfa-options-array').length > 1) {
-        $(this).parent().remove();
+    if ($(e.target).parent().parent().children('div.pfa-modal-input-array-element').length > 1) {
+        $(e.target).parent().remove();
     }
 };
 
 var addArray = function(e) {
-    e.preventDefault();
-    var $clone = $(this).parent().clone();
-    $clone.on('click', '.pfa-input-add', addArray).on('click', '.pfa-input-remove', removeArray);
-    $clone.insertAfter($(this).parent());
+    ($(e.target).parent().clone()).insertAfter($(e.target).parent());
 };
 
-$('#plugin-forms').popover({
+var moveUp = function (e) {
+    if ($(e.target).parent().prev().hasClass('pfa-modal-input-array-element')) {
+        $(e.target).parent().insertBefore($(e.target).parent().prev());
+    }
+}
+
+var moveDown = function (e) {
+    if ($(e.target).parent().next().hasClass('pfa-modal-input-array-element')) {
+        $(e.target).parent().insertAfter($(e.target).parent().next());
+    }
+}
+
+$modalInputArray.on('click', '.pfa-btn-option-array-add', addArray)
+    .on('click', '.pfa-btn-option-array-remove', removeArray)
+    .on('click', '.pfa-btn-option-array-up', moveUp)
+    .on('click', '.pfa-btn-option-array-down', moveDown);
+
+$pluginForms.popover({
     title: '',
     selector: '.pfa-input-label, .pfa-form-title, .pfa-form-id',
     placement: 'top',
@@ -413,12 +413,8 @@ $('#plugin-forms').popover({
         var $html = $(document.createElement('div'));
         $html.append('<div><input style="padding-right: 24px;" class="form-control input-sm" type="text">\
                                 <i class="fa fa-times-circle pointer"></i>\
-                                <button type="submit" class="btn btn-primary btn-sm pfa-input-label-submit">\
-                                    <i class="fa fa-check"></i>\
-                                </button>\
-                                <button type="button" class="btn btn-default btn-sm pfa-input-label-cancel">\
-                                    <i class="fa fa-times"></i>\
-                                </button></div>');
+                                <button type="submit" class="btn btn-primary btn pfa-input-label-submit"><i class="fa fa-check"></i></button>\
+                                <button type="button" class="btn btn-default btn pfa-input-label-cancel"><i class="fa fa-times"></i></button></div>');
         $html.find('.input-sm').on('keypress', function(e){
             if(e.which === 13) {
                 e.preventDefault();
@@ -462,97 +458,21 @@ $('#plugin-forms').popover({
     $('.popover').each(function(){
         $(this).prev().popover('destroy');
     });
-}).on('click', '.pfa-btn-options-clear', function(e){
-    e.preventDefault();
-}).on('click', '.pfa-btn-options-confirm', function(e){
-    e.preventDefault();
-    var type = $(this).parents('.pfa-input-panel').first().attr('type') || 'text',
-        label = $(this).parents('.pfa-input-panel').first().find('.pfa-input-label').text() || type.charAt(0).toUpperCase() + type.slice(1) + 'Label',
-        $formGroup = $(this).closest('.pfa-input-panel').find('.form-group'),
-        $input = $formGroup.find('.pfa-input'),
-        values = $(this).closest('.popover').find('.pfa-option-value').map(function(i, el){
-            return $(el).val();
-        }),
-        labels = $(this).closest('.popover').find('.pfa-option-label').map(function(i, el){
-            return $(el).val();
-        }),
-        names = $(this).closest('.popover').find('.pfa-option-name').map(function(i, el){
-            return $(el).val();
-        }),
-        stamp = Date.now();
-
-    switch (type) {
-        default:
-        case 'text':
-        case 'textarea':
-        case 'date':
-        case 'time':
-        case 'number':
-        case 'url':
-        case 'email':
-        case 'price':
-        case 'address':
-            break;
-        case 'radiogroup':
-        case 'checkboxes':
-            type = type === 'checkboxes' ? 'checkbox' : 'radio';
-            $formGroup.find('.checkbox, .radio').remove();
-            $.each(values, function(i){
-                $formGroup.append('<div class="'+ type +'">\
-                                    <label>\
-                                        <input class="pfa-input-option" value="'+ values[i] +'" type="'+ type +'" name="'+ ( names[0] || type + stamp ) +'"/>\
-                                        <span class="control-label pfa-option-label">'+ labels[i] +'</span>\
-                                    </label>\
-                                </div>');
-            });
-            break;
-        case 'select':
-        case 'select2':
-        case 'selectmultiple':
-            $input.empty();
-            $input.attr('name', names[0]);
-            $.each(values, function(i){
-                $input.append('<option class="pfa-input-option" value="'+ values[i] +'">'+ labels[i] +'</option>');
-            });
-            break;
-    }
-    $('.popover').popover('destroy');
-    
-}).on('click', '.pfa-btn-options-cancel', function(e){
-    e.preventDefault();
-    $('.popover').popover('destroy');
-}).on('click', '.pf-modal-form-save', function (e) {
-    $modalOpenPanel.find('input[name="action"]').val($('.pf-modal-form').find('input[name="action"]').val());
-    $modalOpenPanel.find('input[name="method"]').val($('.pf-modal-form').find('input[name="method"]').val());
-    $modalOpenPanel.find('input[name="captchasite"]').val($('.pf-modal-form').find('input[name="captchasite"]').val());
-    $('.pf-modal-form').modal('hide');
+}).on('click', '#pf-modal-form-save', function (e) {
+    $openForm.find('input[name="action"]').val($modalForm.find('input[name="action"]').val());
+    $openForm.find('input[name="method"]').val($modalForm.find('input[name="method"]').val());
+    $openForm.find('input[name="captchasite"]').val($modalForm.find('input[name="captchasite"]').val());
+    $modalForm.modal('hide');
 }).on('click', '.pfa-btn-edit-form', function (e) {
-    $modalOpenPanel = $(e.target).closest('.pfa-form-panel');
-    $('.pf-modal-form').find('.pf-modal-form-title').text($modalOpenPanel.find('.pfa-form-title').text() + ' Settings');
-    $('.pf-modal-form').find('input[name="action"]').val($modalOpenPanel.find('input[name="action"]').val());
-    $('.pf-modal-form').find('input[name="method"]').val($modalOpenPanel.find('input[name="method"]').val());
-    $('.pf-modal-form').find('input[name="captchasite"]').val($modalOpenPanel.find('input[name="captchasite"]').val());
-    $('.pf-modal-form').modal('show');
-});
-
-var $modalOpenPanel;
-
-var restampChecks = function ($el) {
-    if ($el.is('.pfa-input-panel[type="checkboxes"], .pfa-input-panel[type="radiogroup"]')) {
-        restampCheck($el)
-    }else{
-        $el.find('.pfa-input-panel[type="checkboxes"], .pfa-input-panel[type="radiogroup"]').each(function(i, panel){
-            restampCheck($(panel))
-        });
-    }
-}
-
-var restampCheck = function ($panel) {
-    var stamp = Date.now();
-    $panel.find('input[type="checkbox"], input[type="radio"]').attr('name', 'check' + stamp);
-}
-
-$('#pfa-forms-list').on('click', '.btn', function (e) {
+    $openForm = $(e.target).closest('.pfa-form-panel');
+    $modalForm.find('#pf-modal-form-title').text($openForm.find('.pfa-form-title').text() + ' Settings');
+    $modalForm.find('input[name="action"]').val($openForm.find('input[name="action"]').val());
+    $modalForm.find('input[name="method"]').val($openForm.find('input[name="method"]').val());
+    $modalForm.find('input[name="captchasite"]').val($openForm.find('input[name="captchasite"]').val());
+    $modalForm.modal('show');
+}).on('click', '.pfa-btn-edit-input', function (e) {
+    
+}).on('click', '.btn', function (e) {
     e.preventDefault();
     $(e.target).blur();
 }).on('mouseup', '.pfa-btn-toggle-form, .pfa-form-panel-heading', function (e) {
@@ -563,19 +483,6 @@ $('#pfa-forms-list').on('click', '.btn', function (e) {
         $toggle.children('i').toggleClass('fa-arrow-down');
         $toggle.children('i').toggleClass('fa-arrow-up');
         $toggle.blur();
-    }
-}).sortable({
-    handle: ".pfa-form-panel-heading",
-    placeholder: "ui-state-highlight",
-    forceHelperSize: true,
-    forcePlaceholderSize: true,
-    revert: true,
-    start: function(e, ui) {
-        $(this).find('.panel-body').addClass('hidden');
-        $(this).find('.pfa-btn-toggle-form').blur().find('i').addClass('fa-arrow-down').removeClass('fa-arrow-up');
-        ui.helper.css('height', 50);
-        $(this).sortable('refreshPositions');
-        $('.popover').popover('destroy');
     }
 }).on('click', '.pfa-btn-delete-form', function (e) {
     var element = $(this).parents('li').first(),
@@ -623,6 +530,21 @@ $('#pfa-forms-list').on('click', '.btn', function (e) {
     }
 });
 
+var restampChecks = function ($el) {
+    if ($el.is('.pfa-input-panel[type="checkboxes"], .pfa-input-panel[type="radiogroup"]')) {
+        restampCheck($el)
+    }else{
+        $el.find('.pfa-input-panel[type="checkboxes"], .pfa-input-panel[type="radiogroup"]').each(function(i, panel){
+            restampCheck($(panel))
+        });
+    }
+}
+
+var restampCheck = function ($panel) {
+    var stamp = Date.now();
+    $panel.find('input[type="checkbox"], input[type="radio"]').attr('name', 'check' + stamp);
+}
+
 $('#pfa-add-form').click(addForm);
 
 $('.pfa-inputs-panel .btn').draggable({
@@ -644,6 +566,9 @@ require(['settings'], function(settings) {
                 if (!settings.cfg._.forms) {
                     settings.cfg._.forms = [ ];
                 }
+
+                makeFormsListSortable();
+
                 for (var i = 0; i < settings.cfg._.forms.length; i++) {
                     if (settings.cfg._.forms[i]) {
                         var $newForm = addForm();

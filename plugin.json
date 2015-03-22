@@ -11,7 +11,8 @@
     ],
 	"library": "./index.js",
     "scripts": [
-        "public/js/client.js"
+        "public/js/client.js",
+        "public/js/form.js"
     ],
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init" },

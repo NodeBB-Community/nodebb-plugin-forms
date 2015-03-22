@@ -1,4 +1,13 @@
 #plugin-forms {
+    input, textarea, select, radio, checkbox {
+        .form-control;
+
+        &[type='radio'], &[type='checkbox'] {
+            width: unset;
+            height: 1em;
+        }
+    }
+
     #pfa-forms-panel {
         #pfa-forms-list {
             .pfa-form-panel {
@@ -41,15 +50,6 @@
                         margin: 0;
                         margin-bottom: 3px;
 
-						input, textarea, select, radio, checkbox {
-							.form-control;
-
-							&[type='radio'], &[type='checkbox'] {
-								width: unset;
-								height: 1em;
-							}
-						}
-
                         .pfa-btn-input {
                             .pointer;
 
@@ -75,19 +75,6 @@
                             textarea {
                                 height: 105px;
                                 width: 100%;
-                            }
-                        }
-
-						.popover {
-                            textarea {
-                                resize: none;
-                                height: 105px;
-                            }
-							select {
-								width: 145px;
-							}
-                            .pfa-input-add, .pfa-input-remove {
-                                margin-top: -4px;
                             }
                         }
                     }
@@ -120,6 +107,8 @@
                         margin-bottom: 0;
 
                         input {
+                            width: auto!important;
+
                             &[type='text'] {
                                 width: auto;
                                 margin-right: 0;
@@ -127,37 +116,17 @@
                         }
                         input, button {
                             display: inline;
-                            width: unset;
                         }
                         .fa-times-circle:hover {
                             color: #666;
                         }
-                        .btn-sm {
+                        .btn {
                             margin-left: 2px;
+                            margin-top: -4px;
                         }
                         .fa-times-circle {
                             margin-left: -23px;
                             margin-right: 7px;
-                        }
-                        
-                        .pfa-options-array {
-                            margin-bottom: 4px;
-                            width: 500px;
-
-                            .pfa-option-name {
-                                width: 160px;
-                            }
-                            .pfa-option-label {
-                                width: 160px;
-                            }
-                        }
-
-                        p {
-                            margin: 0px 0px 3px;
-
-                            label {
-                                margin-bottom: 0;
-                            }
                         }
                     }
                 }
@@ -168,6 +137,22 @@
                 line-height: 51px;
                 border:1px blue dotted;
                 margin-bottom: 20px;
+            }
+        }
+    }
+
+    .pfa-modal {
+        #pfa-modal-input-array {
+            padding-left: 15px;
+            padding-right: 15px;
+
+            .pfa-modal-input-array-element {
+                margin-bottom: 4px;
+
+                .pfa-option-label, .pfa-option-value {
+                    display: inline;
+                    width: auto;
+                }
             }
         }
     }
@@ -210,7 +195,7 @@
         min-height: 55px;
     }
 
-    .pfa-inputs-panel, .pfa-decorations-panel {
+    .pfa-inputs-panel {
         padding: 0;
 
         .panel-body {
