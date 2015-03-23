@@ -3,8 +3,9 @@
         .form-control;
 
         &[type='radio'], &[type='checkbox'] {
-            width: unset;
-            height: 1em;
+            margin: 0;
+            width: 20px;
+            height: 20px;
         }
     }
 
@@ -13,7 +14,7 @@
             .pfa-form-panel {
                 border: @brand-primary 1px solid;
 
-                .pfa-input-label, .pfa-form-title, .pfa-form-id {
+                .pfa-input-label, .pfa-input-option-label, .pfa-form-title, .pfa-form-id {
 					.pointer;
 
                     border-bottom: dashed #666 1px;
@@ -46,7 +47,6 @@
                         border: #efefef 1px solid;
                         box-shadow: none;
                         background-color: none;
-                        overflow: hidden;
                         margin: 0;
                         margin-bottom: 3px;
 
@@ -75,6 +75,11 @@
                             textarea {
                                 height: 105px;
                                 width: 100%;
+                            }
+
+                            .pfa-input-option-label {
+                                margin-left: 20px;
+                                padding-left: 0;
                             }
                         }
                     }
@@ -214,14 +219,56 @@
                 }
             }
         }
+    }
 
-        .btn {
-            .text-left;
-            width: 100%;
-            margin-bottom: 15px;
-            box-shadow: 0px 4px 2px 0px rgba(120, 120, 120, 0.75);
+    .btn-eraser {
+        .btn-default;
+
+        background-color: pink;
+
+        :focus {
+            background-color: darken(pink, 0.1%);
         }
     }
+
+    .pfa-btn-span {
+        display: none;
+    }
+}
+
+.pfa-pill-info {
+    .btn;
+    .btn-info;
+    .text-center;
+
+    width: 100%;
+    margin-bottom: 15px;
+    box-shadow: 0px 4px 2px 0px rgba(120, 120, 120, 0.75);
+}
+
+.btn-draggable {
+    max-width: 120px;
+    margin-left: 8px;
+    margin-right: 2px;
+    box-shadow: 0px 4px 2px 0px rgba(120, 120, 120, 0.75);
+}
+
+.pfa-pill-warning {
+    .btn;
+    .btn-warning;
+    .text-center;
+
+    width: auto;
+    margin-bottom: 15px;
+}
+
+.pfa-pill-info {
+    .btn;
+    .btn-info;
+    .text-center;
+
+    width: auto;
+    margin-bottom: 15px;
 }
 
 .pf-form {

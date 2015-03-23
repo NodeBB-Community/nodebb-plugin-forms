@@ -33,8 +33,6 @@
                     <span class="panel-title">Inputs</span>
                 </div>
                 <div class="panel-body">
-                    <div class="container">
-                    </div>
                 </div>
             </div>
         </div>
@@ -57,7 +55,7 @@ var $pluginForms = $('#plugin-forms'),
     $openFormPanel,
     $openInputPanel;
 
-var inputTexts = {
+var inputTypes = {
     'text': {display: 'Text', camel: 'Text'},
     'textarea': {display: 'Text Area', camel: 'TextArea'},
     'date': {display: 'Date', camel: 'Date'},
@@ -67,25 +65,26 @@ var inputTexts = {
     'email': {display: 'E-Mail', camel: 'Email'},
     'price': {display: 'Price', camel: 'Price'},
     'address': {display: 'Address', camel: 'Address'},
-    'radiogroup': {display: 'Multiple Choice', camel: 'RadioGroup', single: 'radio'},
-    'checkboxes': {display: 'Check Group', camel: 'Checkboxes', single: 'checkbox'},
-    'select': {display: 'Dropdown', camel: 'Select'},
-    'select2': {display: 'Select2', camel: 'Select2'},
-    'selectmultiple': {display: 'List Box', camel: 'SelectMultiple'}
+    'radiogroup': {display: 'Multiple Choice', camel: 'RadioGroup', single: 'radio', erasable: true},
+    'checkboxes': {display: 'Check Group', camel: 'Checkboxes', single: 'checkbox', erasable: true},
+    'select': {display: 'Dropdown', camel: 'Select', erasable: true},
+    'select2': {display: 'Select2', camel: 'Select2', erasable: true},
+    'selectmultiple': {display: 'List Box', camel: 'SelectMultiple', erasable: true},
+    'info': {display: 'Text Info', camel: 'Info', pillStyle: 'pfa-pill-warning', decor: true},
+    'divider': {display: 'Divider', camel: 'Divider', pillStyle: 'pfa-pill-warning', decor: true},
+    'container': {display: 'Container', camel: 'Container', pillStyle: 'pfa-pill-warning', decor: true}
 }
 
 var initInputButtons = function () {
-    for (var inputType in inputTexts) {
-        $('.pfa-inputs-panel').find('.container').append(makeInputPill(inputType));
+    for (var inputType in inputTypes) {
+        $('.pfa-inputs-panel').find('.panel-body').append(makeInputPill(inputType));
     }
 }
 
-var makeInputPill = function (inputType) {
-    return $.parseHTML('<div class="col-lg-6">\
-                            <div class="btn btn-info btn-draggable" type="'+ inputType +'">\
-                                <i class="fa fa-fw fa-plus"></i><span>'+ inputTexts[inputType].display +'</span>\
-                            </div>\
-                        </div>');
+var makeInputPill = function (type) {
+    return $.parseHTML('<div class="btn-draggable '+ (inputTypes[type].pillStyle || 'pfa-pill-info') +'" type="'+ type +'">\
+                                <span class="text-center">'+ (inputTypes[type].display || type) +'</span>\
+                            </div>');
 }
 
 initInputButtons();
@@ -102,9 +101,9 @@ var addForm = function() {
                             <div class="panel-title pull-left">\
                                     <span class="pfa-form-title">New Form '+ countNewForms +'</span> (ID: <span class="pfa-form-id">'+ countNewForms +'</span>)\
                             </div>\
-                            <button type="button" class="btn btn-danger pull-right pfa-btn-delete-form"><i class="fa fa-fw fa-times"></i></button>\
-                            <button type="button" class="btn btn-info pull-right pfa-btn-clone-form"><i class="fa fa-fw fa-copy"></i></button>\
-                            <button type="button" class="btn btn-success pull-right pfa-btn-edit-form"><i class="fa fa-fw fa-cog"></i></button>\
+                            <button type="button" data-toggle="tooltip" data-placement="top" title="Delete Form" class="btn btn-danger pull-right pfa-btn-delete-form"><i class="fa fa-fw fa-times"></i></button>\
+                            <button type="button" data-toggle="tooltip" data-placement="top" title="Clone Form" class="btn btn-info pull-right pfa-btn-clone-form"><i class="fa fa-fw fa-copy"></i></button>\
+                            <button type="button" data-toggle="tooltip" data-placement="top" title="Form Settings" class="btn btn-success pull-right pfa-btn-edit-form"><i class="fa fa-fw fa-cog"></i></button>\
                         </div>\
                         <input type="hidden" name="method" value="post">\
                         <input type="hidden" name="action" value="/forms/post">\
@@ -148,7 +147,7 @@ var makeInputListSortable = function (element) {
             $('.popover').popover('destroy');
         },
         receive: function(event, ui) {
-            if (event.target === this && ui.item.is('.btn')) {
+            if (event.target === this && ui.item.is('.btn-draggable')) {
                 addInput(this);
             }
         }
@@ -176,10 +175,10 @@ var makeFormHeaderDroppable = function (element) {
 
 var addInput = function(inputSortable, data) {
     data = data || { };
-    var inputHtml,
-        html,
+    var inputHtml = '',
+        html = '',
         type = data.type || $(inputSortable).find('.btn-draggable').attr('type') || 'input',
-        label = data.label || type.charAt(0).toUpperCase() + type.slice(1) + ' Label',
+        label = data.label || inputTypes[type].display + ' Label',
         options = data.options || [ ],
         idefault = data.default,
         stamp = Date.now(),
@@ -187,6 +186,12 @@ var addInput = function(inputSortable, data) {
     switch (type) {
         default:
         case 'text':
+        case 'date':
+        case 'time':
+        case 'number':
+        case 'url':
+        case 'email':
+        case 'price':
             inputHtml = '<div class="form-group">\
                             <label class="control-label pfa-input-label">'+ label +'</label>\
                             <br><input class="pfa-input" name="'+ name +'" type="'+ type +'" value="'+ ( data.default || '' ) +'"/>\
@@ -205,59 +210,18 @@ var addInput = function(inputSortable, data) {
             if (options.length) {
                 for (var i = 0; i < options.length; i++) {
                     var value = options[i].value || type + stamp;
-                    inputHtml = inputHtml + '<div class="'+ inputTexts[type].single +'">\
-                                                <label>\
-                                                    <input class="pfa-input-option" type="'+ inputTexts[type].single +'" value="'+ value +'"'+ ( options[i].default ? ' checked="checked"' : '' ) +' name="'+ name +'"/>\
-                                                    <span class="control-label pfa-option-label">'+ options[i].label +'</span>\
-                                                </label>\
+                    inputHtml = inputHtml + '<div class="'+ inputTypes[type].single +'">\
+                                                <input class="pfa-input-option" type="'+ inputTypes[type].single +'" value="'+ value +'"'+ ( options[i].default ? ' checked="checked"' : '' ) +' name="'+ name +'"/>\
+                                                <label class="control-label pfa-input-option-label">'+ options[i].label +'</label>\
                                             </div>';
                 }
             }else{
-                inputHtml += '<div class="'+ inputTexts[type].single +'">\
-                                    <label>\
-                                        <input class="pfa-input-option" type="'+ inputTexts[type].single +'" value="1" name="'+ name +'"/>\
-                                        <span class="control-label pfa-option-label">Option 1</span>\
-                                    </label>\
-                                </div>';
+                inputHtml += '<div class="'+ inputTypes[type].single +'">\
+                                <input class="pfa-input-option" type="'+ inputTypes[type].single +'" value="1" name="'+ name +'"/>\
+                                <label class="control-label pfa-option-label">Option 1</label>\
+                              </div>';
             }
             inputHtml = inputHtml + '</div>';
-            break;
-        case 'date':
-            inputHtml = '<div class="form-group">\
-                            <label class="control-label pfa-input-label">'+ label +'</label>\
-                            <br><input class="pfa-input" type="'+ type +'" value=""/>\
-                        </div>';
-            break;
-        case 'time':
-            inputHtml = '<div class="form-group">\
-                            <label class="control-label pfa-input-label">'+ label +'</label>\
-                            <br><input class="pfa-input" type="'+ type +'" value="'+ ( data.default || '' ) +'"/>\
-                        </div>';
-            break;
-        case 'number':
-            inputHtml = '<div class="form-group">\
-                            <label class="control-label pfa-input-label">'+ label +'</label>\
-                            <br><input class="pfa-input" type="'+ type +'" value="'+ ( data.default || '' ) +'"/>\
-                        </div>';
-            break;
-        case 'url':
-            label = "Link Label";
-            inputHtml = '<div class="form-group">\
-                            <label class="control-label pfa-input-label">'+ label +'</label>\
-                            <br><input class="pfa-input" type="'+ type +'" value="'+ ( data.default || '' ) +'"/>\
-                        </div>';
-            break;
-        case 'email':
-            inputHtml = '<div class="form-group">\
-                            <label class="control-label pfa-input-label">'+ label +'</label>\
-                            <br><input class="pfa-input" type="'+ type +'" value="'+ ( data.default || '' ) +'"/>\
-                        </div>';
-            break;
-        case 'price':
-            inputHtml = '<div class="form-group">\
-                            <label class="control-label pfa-input-label">'+ label +'</label>\
-                            <br><input class="pfa-input" type="'+ type +'" value="'+ ( data.default || '' ) +'"/>\
-                        </div>';
             break;
         case 'address':
             inputHtml = '<div class="form-group">\
@@ -298,14 +262,29 @@ var addInput = function(inputSortable, data) {
             }
             inputHtml = inputHtml + '</select></div>';
             break;
+        case 'info':
+            inputHtml = '<div class="form-group">\
+                            <span class="h3"><label class="control-label pfa-input-label">'+ label +'</label></span>\
+                            <br><textarea class="pfa-input" name="'+ name +'">'+ ( data.default || '' ) +'</textarea>\
+                        </div>';
+            break;
+        case 'divider':
+            inputHtml = '<div class="form-group">\
+                            <hr>\
+                        </div>';
+            break;
     }
-    var html = '<li class="panel panel-default pfa-input-panel clearfix" type="'+ type +'">\
-                    <button type="button" class="btn btn-danger pull-right  pfa-btn-input pfa-btn-delete-input"><i class="fa fa-fw fa-times"></i></button>\
-                    <button type="button" class="btn btn-info pull-right    pfa-btn-input pfa-btn-clone-input"><i class="fa fa-fw fa-copy"></i></button>\
-                    <button type="button" class="btn btn-success pull-right pfa-btn-input pfa-btn-edit-input"><i class="fa fa-fw fa-cog"></i></button>\
-                    <button type="button" class="btn btn-default pull-right pfa-btn-input pfa-btn-require-input" data-require="'+ ( data.require ? 'true' : 'false' ) +'"><span class="pfa-btn-span">Require </span><i class="fa fa-fw fa-'+ ( data.require ? 'check-' : '' ) +'square-o"></i></button>\
-                    '+ inputHtml +'\
-                </li>';
+    html += '<li class="panel panel-default pfa-input-panel clearfix" type="'+ type +'">\
+                <button type="button" data-toggle="tooltip" data-placement="top" title="Delete Input" class="btn btn-danger pull-right  pfa-btn-input pfa-btn-delete-input"><i class="fa fa-fw fa-times"></i><span class="pfa-btn-span"> Delete</span></button>\
+                <button type="button" data-toggle="tooltip" data-placement="top" title="Clone Input" class="btn btn-info pull-right    pfa-btn-input pfa-btn-clone-input"><i class="fa fa-fw fa-copy"></i><span class="pfa-btn-span"> Clone</span></button>\
+                <button type="button" data-toggle="tooltip" data-placement="top" title="Input Settings" class="btn btn-success pull-right pfa-btn-input pfa-btn-edit-input"><i class="fa fa-fw fa-cog"></i><span class="pfa-btn-span"> Settings</span></button>';
+    if (inputTypes[type].erasable) {
+        html += '<button type="button" data-toggle="tooltip" data-placement="top" title="Clear Input Selections" class="btn btn-eraser pull-right  pfa-btn-input pfa-btn-clear-input"><i class="fa fa-fw fa-eraser"></i><span class="pfa-btn-span"> Clear</span></button>';
+    }
+    if (!inputTypes[type].decor) {
+        html += '<button type="button" data-toggle="tooltip" data-placement="top" title="Require Input" class="btn btn-default pull-right pfa-btn-input pfa-btn-require-input" data-require="'+ ( data.require ? 'true' : 'false' ) +'"><i class="fa fa-fw fa-'+ ( data.require ? 'check-' : '' ) +'square-o"></i><span class="pfa-btn-span"> Require</span></button>';
+    }
+    html += inputHtml +'</li>';
     html = $.parseHTML(html);
     if ($(inputSortable).find('.btn-draggable').length) {
         $(inputSortable).find('.btn-draggable').replaceWith(html);
@@ -322,8 +301,10 @@ $pluginForms.on('click', '.pfa-btn-edit-input', function (e) {
         $pairs = $formGroup.find('.pfa-input-option'),
         name = $($pairs[0]).attr('name') || $formGroup.find('select, .pfa-input').attr('name');
 
+    if (inputTypes[type].pillStyle) return;
+
     $modalInputArray.empty();
-    $modalInputTitle.text(inputTexts[type].display + ' Settings');
+    $modalInputTitle.text(inputTypes[type].display + ' Settings');
     $modalInputName.val(name);
     if ($pairs.length) {
         $modalInputArray.append('<div>\
@@ -357,15 +338,13 @@ $pluginForms.on('click', '.pfa-btn-edit-input', function (e) {
     $input.attr('name', name);
     if (values) {
         if (type === 'checkboxes' || type === 'radiogroup') {
-            type = inputTexts[type].single;
+            type = inputTypes[type].single;
             $formGroup.find('.' + type).remove();
             $.each(values, function(i){
                 $formGroup.append('<div class="'+ type +'">\
-                                    <label>\
-                                        <input class="pfa-input-option" value="'+ values[i] +'" type="'+ type +'" name="'+ name +'"/>\
-                                        <span class="control-label pfa-option-label">'+ labels[i] +'</span>\
-                                    </label>\
-                                </div>');
+                                    <input class="pfa-input-option" value="'+ values[i] +'" type="'+ type +'" name="'+ name +'"/>\
+                                    <label class="control-label pfa-input-option-label">'+ labels[i] +'</label>\
+                                   </div>');
             });
         }else{
             $input.empty();
@@ -406,7 +385,7 @@ $modalInputArray.on('click', '.pfa-btn-option-array-add', addArray)
 
 $pluginForms.popover({
     title: '',
-    selector: '.pfa-input-label, .pfa-form-title, .pfa-form-id',
+    selector: '.pfa-input-label, .pfa-form-title, .pfa-form-id, .pfa-input-option-label',
     placement: 'top',
     html: 'true',
     content: function(){
@@ -450,7 +429,7 @@ $pluginForms.popover({
         });
         // Set the popover input if the trigger is a label.
         // Using the aria id because popover DOM placement is not always guaranteed.
-        if ($el.is('.pfa-input-label, .pfa-form-title, .pfa-form-id')) {
+        if ($el.is('.pfa-input-label, .pfa-form-title, .pfa-form-id, .pfa-input-option-label')) {
             $('[id="'+ $el.attr('aria-describedby') +'"]').find('input').val($el.text());
         }
     }
@@ -470,8 +449,6 @@ $pluginForms.popover({
     $modalForm.find('input[name="method"]').val($openForm.find('input[name="method"]').val());
     $modalForm.find('input[name="captchasite"]').val($openForm.find('input[name="captchasite"]').val());
     $modalForm.modal('show');
-}).on('click', '.pfa-btn-edit-input', function (e) {
-    
 }).on('click', '.btn', function (e) {
     e.preventDefault();
     $(e.target).blur();
@@ -497,12 +474,12 @@ $pluginForms.popover({
         $newForm = $form.clone(),
         formtitle = $newForm.find('.pfa-form-title').text(),
         formid = $newForm.find('.pfa-form-id').text();
-    
+
     $newForm.find('.pfa-form-title').text(formtitle + ' Clone'),
     $newForm.find('.pfa-form-id').text(formid + 'clone');
     restampChecks($newForm);
     $newForm.insertAfter($form);
-    
+
     makeInputListSortable($newForm.find('.pfa-input-list'));
 }).on('click', '.pfa-btn-delete-input', function (e) {
     var element = $(this).parents('li').first(),
@@ -520,6 +497,13 @@ $pluginForms.popover({
     $newInput.find('.pfa-input-label').text(text + ' Clone');
     restampChecks($newInput);
     $newInput.insertAfter($input);
+}).on('click', '.pfa-btn-clear-input', function (e) {
+    var $input = $(e.target).closest('.pfa-input-panel').find('.pfa-input, .pfa-input-option');
+    if ($input.is('select')) {
+        $input.val([]);
+    }else{
+        $input.each(function(){$(this).prop('checked', false);});
+    }
 }).on('click', '.pfa-btn-require-input', function (e) {
     if ($(this).data('require')) {
         $(this).data('require', false);
@@ -547,10 +531,16 @@ var restampCheck = function ($panel) {
 
 $('#pfa-add-form').click(addForm);
 
-$('.pfa-inputs-panel .btn').draggable({
+$('.pfa-inputs-panel .btn-draggable').draggable({
     connectToSortable: '.pfa-input-list',
     helper: 'clone',
-    revert: 'invalid'
+    start: function (e, ui) {
+        ui.helper.css('width', $(this).css('width')).css('height', $(this).css('height'));
+    },
+    revert: 'invalid',
+    zIndex: 10000,
+    appendTo: 'body',
+    scroll: false
 });
 
 require(['settings'], function(settings) {
@@ -617,7 +607,7 @@ require(['settings'], function(settings) {
                     name: $(this).find('.pfa-input').attr('name') || $(this).find('.pfa-input-label').text().trim().toLowerCase().replace(/ /g, '-'),
                     require: $(this).find('[data-require]').data('require')
                 };
-                input['is' + inputTexts[type].camel] = true;
+                input['is' + inputTypes[type].camel] = true;
                 switch (type) {
                     default:
                     case 'text':
@@ -634,7 +624,7 @@ require(['settings'], function(settings) {
                     case 'checkboxes':
                     case 'radiogroup':
                         var $options = $(this).find(".pfa-input-option");
-                        var $labels = $(this).find(".pfa-option-label");
+                        var $labels = $(this).find(".pfa-input-option-label");
 
                         input.name = $($options[0]).attr('name');
                         input.options = [ ];
@@ -672,6 +662,10 @@ require(['settings'], function(settings) {
             socket.emit('admin.settings.syncPluginForms');
         });
     });
+});
+
+$('body').tooltip({
+  selector: '[data-toggle="tooltip"]'
 });
 
 </script>
