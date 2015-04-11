@@ -163,19 +163,12 @@
                     <div class="g-recaptcha" data-sitekey="{captchasite}"></div>
                     <!-- ENDIF captchasite -->
 
-                    <button class="btn btn-success" type="submit">Submit Form</button>
-                    <button class="btn btn-warning">Clear Form</button>
+                    <button class="btn btn-success pf-submit" type="submit">Submit Form</button>
+                    <button class="btn btn-warning pf-clear" type="reset">Clear Form</button>
                     <input class="pf-csrf" type="hidden" value="" name="_csrf" />
+                    <input type="hidden" value="{formid}" name="formid" />
                 </div>
             </div>
         </div>
     </div>
 </form>
-
-<script type="text/javascript">
-
-require(['//cdnjs.cloudflare.com/ajax/libs/parsley.js/2.0.7/parsley.min.js'], function (Parsley) {
-    console.log($('pf-{formid}').parsley());
-});
-
-</script>

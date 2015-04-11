@@ -7,10 +7,11 @@
 		meta = module.parent.require('./meta'),
 		Settings = module.parent.require('./settings'),
 		db = module.parent.require('./database'),
-		user = module.parent.require('./user'),
+		User = module.parent.require('./user'),
 		Topics = module.parent.require('./topics'),
 		plugins = module.parent.require('./plugins'),
 		SocketAdmin = module.parent.require('./socket.io/admin'),
+		SocketPlugins = module.parent.require('./socket.io/modules'),
 		translator = module.parent.require('../public/src/translator'),
 		app,
 		router,
@@ -25,11 +26,15 @@
 		middleware = params.middleware;
 
 		function render(req, res, next) {
-			res.render('admin/plugins/plugin-forms', { });
+			res.render(req.path.slice(1).replace('api/',''), { });
 		}
 
 		router.get('/admin/plugins/plugin-forms', middleware.admin.buildHeader, render);
+		router.get('/admin/plugins/plugin-forms/form-builder', middleware.admin.buildHeader, render);
+		router.get('/admin/plugins/plugin-forms/input-builder', middleware.admin.buildHeader, render);
 		router.get('/api/admin/plugins/plugin-forms', render);
+		router.get('/api/admin/plugins/plugin-forms/form-builder', render);
+		router.get('/api/admin/plugins/plugin-forms/input-builder', render);
 		router.get('/plugin-forms/config', function (req, res) {
 			res.status(200);
 		});
@@ -57,6 +62,37 @@
 					// action: {method: 'POST', uri: '//forms/form1/post/'}
 				// }
 			// ]
+			// records: {
+				// recordid: {
+					// formid: formid;
+					// time: timestamp,
+					// owner: uid,
+					// status: 'denied' 'approved' 'finished' 'waiting' 'deleted',
+					// waitingOn: [uid,uid,uid],
+					// cc: [uid, uid, uid],
+					// values: {
+						// inputname1: inputvalue1,
+						// inputname2: inputvalue2,
+						// inputname3: {uid: uid, time: timestamp, value: inputvalue3}
+					// }
+
+					// comments: [
+						// {
+							// uid: uid,
+							// time: timestamp,
+							// private: true false,
+							// comment: 'comment'
+						// }
+					// ]
+					// actions: [
+						// {
+							// time: timestamp,
+							// uid: uid,
+							// action: 'approve', 'unapprove', 'deny', 'delegateTo:uid', 'lock', 'delete'
+						// }
+					// ]
+				// }
+			// }
 		// }
 
 		PluginForms.settings = new Settings('plugin-forms', '0.0.1', defaultSettings, function() {
@@ -69,6 +105,54 @@
 				PluginForms.setRoutes();
 			});
 			setTimeout(PluginForms.logSettings, 2000);
+		};
+
+		SocketPlugins.PluginForms = {};
+		SocketPlugins.PluginForms.submit = function(socket, data, callback) {
+			var uid = socket.uid,
+				ip = socket.ip,
+				stamp = Date.now(),
+				values = {}, pair, formid, formdata, username;
+
+			data.form = data.form.split('&');
+			for (var i in data.form) {
+				pair = data.form[i].split('=');
+				if (pair[1]) {
+					if (values.hasOwnProperty(pair[0])) {
+						if (!Array.isArray(values[pair[0]])) {
+							values[pair[0]] = [values[pair[0]]];
+						}
+						values[pair[0]].push(pair[1]);
+					}else{
+						values[pair[0]] = pair[1];
+					}
+				}
+			}
+
+			formid = values['formid'];
+			if (!formid) return console.log("Uh oh, something went wrong with a form submission, no ID was found. Ignoring the submission.");
+
+			console.log('UID '+ uid +' submitted form ID "'+ formid +'"');
+			// TODO: Check for the record id and append it.
+			PluginForms.settings.set('records.' + stamp, {
+				formid: formid,
+				time: stamp,
+				owner: uid,
+				ip: ip,
+				status: 'finished',
+				waitingOn: [],
+				cc: [],
+				values: values,
+				comments: [],
+				actions: []
+			});
+			PluginForms.settings.persist();
+
+			formdata = PluginForms.settings.get('forms.' + formids.indexOf(formid));
+			User.getUsernamesByUids([uid], function(err, users) {
+				if (err) return;
+				callback(null, {username: users[0], formname: formdata.title});
+			});
 		};
 
 		callback();
@@ -125,7 +209,17 @@
 						custom_header.plugins.push({
 							"route": '/plugins/plugin-forms',
 							"icon": 'fa-edit',
-							"name": 'Forms'
+							"name": 'Forms - Settings'
+						});
+						custom_header.plugins.push({
+							"route": '/plugins/plugin-forms/form-builder',
+							"icon": 'fa-edit',
+							"name": 'Forms - Form Builder'
+						});
+						custom_header.plugins.push({
+							"route": '/plugins/plugin-forms/input-builder',
+							"icon": 'fa-edit',
+							"name": 'Forms - Input Builder'
 						});
 
 						callback(null, custom_header);
@@ -135,7 +229,7 @@
 			parse: {
 				post: function(data, callback) {
 					if (data && data.postData && data.postData.content) {
-						user.isAdministrator(data.postData.uid, function(err, isAdmin) {
+						User.isAdministrator(data.postData.uid, function(err, isAdmin) {
 							if (!err && isAdmin) {
 								db.getObjectField('topic:' + data.postData.tid, 'mainPid', function (err, pid) {
 									if (!err && data.postData.pid === pid) {
