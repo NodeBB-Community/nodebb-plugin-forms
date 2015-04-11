@@ -4,15 +4,16 @@
 	"description": "Create awesome forms for your forum.",
 	"url": "https://github.com/pitaj/nodebb-plugin-forms",
     "staticDirs": {
-        "lib": "./lib"
+        "public": "./public"
     },
     "less": [
-        "public/less/style.less"
+        "./less/style.less"
     ],
 	"library": "./index.js",
     "scripts": [
-        "public/js/client.js",
-        "public/js/form.js"
+        "./lib/client/client.js",
+        "./lib/client/form.js",
+        "./lib/client/acpforms.js"
     ],
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init" },
