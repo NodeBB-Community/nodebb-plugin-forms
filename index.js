@@ -25,16 +25,19 @@
 		router = params.router;
 		middleware = params.middleware;
 
-		function render(req, res, next) {
+		function renderAdminPage(req, res, next) {
 			res.render(req.path.slice(1).replace('api/',''), { });
 		}
 
-		router.get('/admin/plugins/plugin-forms', middleware.admin.buildHeader, render);
-		router.get('/admin/plugins/plugin-forms/form-builder', middleware.admin.buildHeader, render);
-		router.get('/admin/plugins/plugin-forms/input-builder', middleware.admin.buildHeader, render);
-		router.get('/api/admin/plugins/plugin-forms', render);
-		router.get('/api/admin/plugins/plugin-forms/form-builder', render);
-		router.get('/api/admin/plugins/plugin-forms/input-builder', render);
+		function addAdminPage(page) {
+			router.get('/admin/plugins/plugin-forms' + (page ? '/' + page : ''), middleware.admin.buildHeader, renderAdminPage);
+			router.get('/api/admin/plugins/plugin-forms' + (page ? '/' + page : ''), renderAdminPage);
+		}
+
+		addAdminPage();
+		addAdminPage('form-builder');
+		addAdminPage('input-builder');
+
 		router.get('/plugin-forms/config', function (req, res) {
 			res.status(200);
 		});
@@ -179,6 +182,9 @@
 		var formid = path[path.length-1];
 		var formIndex = formids.indexOf(formid);
 		var data = !!~formIndex ? PluginForms.settings.get('forms')[formIndex] : { };
+		if (data.container) {
+			data['use' + data.container.charAt(0).toUpperCase() + data.container.slice(1)] = true;
+		}
 		res.render('views/form', data);
 	}
 

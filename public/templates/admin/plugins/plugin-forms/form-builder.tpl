@@ -3,7 +3,7 @@
         <div class="col-lg-9">
             <div class="panel panel-primary" id="pfa-forms-panel">
                 <div class="panel-heading">
-                    <span class="panel-title">Forms</span>
+                    <span class="panel-title">Forms - Form Builder</span>
                 </div>
                 <div class="panel-body">
                     <p>Create forms for doing awesome things on your forum.</p>
