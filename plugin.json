@@ -7,7 +7,8 @@
         "public": "./public"
     },
     "less": [
-        "./less/style.less"
+        "./less/style.less",
+        "./less/jqueryuipatch.less"
     ],
 	"library": "./index.js",
     "scripts": [
