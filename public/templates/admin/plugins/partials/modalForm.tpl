@@ -13,7 +13,9 @@
                     <div class="col-sm-8">
                         <select name="method">
                             <option value="submit">Submit</option>
-                            <option value="post">Send HTTP POST request</option>
+                            <option value="post">Send an HTTP POST request</option>
+                            <option value="nbbtopic">Create a new Topic</option>
+                            <option value="nbbpost">Create a new Post</option>
                         </select>
                     </div>
                 </div>
@@ -23,6 +25,22 @@
                     </label>
                     <div class="col-sm-8">
                         <input type="text" name="action">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">
+                        <span>Form Admins <i class="fa fa-question-circle text-info" data-original-title="Admins can take actions on the form such as approve/deny." data-toggle="tooltip" data-placement="top"></i></span>
+                    </label>
+                    <div class="col-sm-8">
+                        <input type="text" name="admins">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">
+                        <span>Form Members <i class="fa fa-question-circle text-info" data-original-title="Members can view and post comments on a form." data-toggle="tooltip" data-placement="top"></i></span>
+                    </label>
+                    <div class="col-sm-8">
+                        <input type="text" name="members">
                     </div>
                 </div>
                 <div class="form-group">

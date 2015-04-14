@@ -24,6 +24,10 @@
         </div>
         <!-- ENDIF inputs.isText -->
 
+        <!-- IF inputs.isHidden -->
+        <input class="" type="hidden" value="{inputs.default}" name="{inputs.name}"/>
+        <!-- ENDIF inputs.isHidden -->
+
         <!-- IF inputs.isDate -->
         <div class="form-group">
             <label class="control-label">{inputs.label}</label>

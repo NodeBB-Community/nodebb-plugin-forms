@@ -12,7 +12,7 @@
 		plugins = module.parent.require('./plugins'),
 		SocketAdmin = module.parent.require('./socket.io/admin'),
 		SocketPlugins = module.parent.require('./socket.io/modules'),
-		translator = module.parent.require('../public/src/translator'),
+		translator = module.parent.require('../public/src/modules/translator'),
 		app,
 		router,
 		middleware,
