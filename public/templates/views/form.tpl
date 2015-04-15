@@ -151,14 +151,22 @@
         <p>{inputs.default}</p>
         <!-- ENDIF inputs.isInfo -->
 
+        <!-- IF inputs.isButtons -->
+        <!-- BEGIN inputs.buttons -->
+        <button class="btn btn-default pf-{inputs.buttons.type}" type="{inputs.buttons.type}">{inputs.buttons.label}</button>
+        <!-- END inputs.buttons -->
+        <!-- ENDIF inputs.isButtons -->
+
         <!-- END inputs -->
 
         <!-- IF captchasite -->
-        <div class="g-recaptcha" data-sitekey="{captchasite}"></div>
+        <!-- temporary <div class="g-recaptcha" data-sitekey="{captchasite}"></div> -->
         <!-- ENDIF captchasite -->
 
+        <!-- IF noButtons -->
         <button class="btn btn-success pf-submit" type="submit">Submit Form</button>
-        <button class="btn btn-warning pf-clear" type="reset">Clear Form</button>
+        <button class="btn btn-warning pf-reset" type="reset">Clear Form</button>
+        <!-- ENDIF noButtons -->
         <input class="pf-csrf" type="hidden" value="" name="_csrf" />
         <input type="hidden" value="{formid}" name="formid" />
 

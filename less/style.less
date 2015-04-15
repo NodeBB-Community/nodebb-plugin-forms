@@ -94,6 +94,10 @@
                         }
                     }
 
+                    .pfa-input-panel[type="hidden"] {
+                        background-color: #eee;
+                    }
+
                     .pfa-input-panel.ui-sortable-helper {
                         box-shadow: 0px 2px 4px 0px rgba(165, 165, 165, 0.75);
                         border: @brand-primary 1px solid;
@@ -232,6 +236,7 @@
     .text-center;
 
     margin-bottom: 15px;
+    padding: 2px 8px !important; //temporary
     box-shadow: 0px 4px 2px 0px rgba(120, 120, 120, 0.75);
 
     &:hover, &:focus, &:active {
@@ -305,5 +310,13 @@
 
     .g-recaptcha {
         margin-bottom: 15px;
+    }
+
+    .pf-submit {
+        .btn-success;
+    }
+
+    .pf-reset {
+        .btn-warning;
     }
 }
