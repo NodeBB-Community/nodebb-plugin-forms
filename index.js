@@ -106,8 +106,8 @@
 		SocketAdmin.settings.syncPluginForms = function (forms) {
 			PluginForms.settings.sync(function(){
 				PluginForms.setRoutes();
+				PluginForms.logForms();
 			});
-			setTimeout(PluginForms.logSettings, 2000);
 		};
 
 		SocketPlugins.PluginForms = {};
@@ -204,6 +204,12 @@
 	PluginForms.logSettings = function () {
 		var config = PluginForms.settings.get();
 		console.log("PluginForms Settings:");
+		console.log(util.inspect(config, false, null));
+	};
+
+	PluginForms.logForms = function () {
+		var config = PluginForms.settings.get('forms');
+		console.log("PluginForms Forms:");
 		console.log(util.inspect(config, false, null));
 	};
 

@@ -14,13 +14,13 @@
             .pfa-form-panel {
                 border: @brand-primary 1px solid;
 
-                .pfa-input-label, .pfa-input-option-label, .pfa-form-title, .pfa-form-id {
+                label[data-text], span[data-text] {
 					.pointer;
 
                     border-bottom: dashed #666 1px;
                 }
 
-                .pfa-form-panel-heading {
+                >.panel-heading {
                     text-transform: none;
                     line-height: 34px;
                     padding-right: 7px;
@@ -35,6 +35,14 @@
 					.pfa-btn-toggle-form {
 						margin-right: 9px;
 					}
+
+                    >.panel-title {
+                        >label {
+                            margin-bottom: 5px;
+                            margin-top: 5px;
+                            line-height: 1.42857;
+                        }
+                    }
                 }
 
                 .pfa-input-list {
@@ -52,6 +60,10 @@
                         margin-bottom: 3px;
                         cursor: move;
 
+                        .h3 {
+                            margin-top: 0;
+                            margin-bottom: 5px;
+                        }
                         .pfa-btn-input {
                             .pointer;
 
@@ -62,27 +74,25 @@
                             border-radius: 24px;
                         }
 
-                        .form-group {
-							select {
-                                width: 300px;
-								height: auto;
-                            }
+                        select {
+                            width: 300px;
+                            height: auto;
+                        }
 
-                            input {
-                                &[type='text'], &[type='time'], &[type='email'], &[type='date'] {
-                                    width: 100%;
-                                }
-                            }
-
-                            textarea {
-                                height: 105px;
+                        input {
+                            &[type='text'], &[type='time'], &[type='email'], &[type='date'] {
                                 width: 100%;
                             }
+                        }
 
-                            .pfa-input-option-label {
-                                margin-left: 20px;
-                                padding-left: 0;
-                            }
+                        textarea {
+                            height: 105px;
+                            width: 100%;
+                        }
+
+                        .pfa-input-option-label {
+                            margin-left: 20px;
+                            padding-left: 0;
                         }
 
                         .pfa-jumbotron {
@@ -92,10 +102,6 @@
                             color: inherit;
                             background-color: #EEF;
                         }
-                    }
-
-                    .pfa-input-panel[type="hidden"] {
-                        background-color: #eee;
                     }
 
                     .pfa-input-panel.ui-sortable-helper {
