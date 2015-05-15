@@ -1,8 +1,7 @@
 "use strict";
 
-define('admin/plugins/plugin-forms/form-builder', ['/plugins/nodebb-plugin-forms/public/vendor/templates.js'], function () {
+define('admin/plugins/plugin-forms/form-builder', function () {
 	var ACPForms = { };
-	console.log(templates);
 
 	ACPForms.formElements = { };
 	ACPForms.init = function () {
