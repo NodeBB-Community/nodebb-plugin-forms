@@ -7,19 +7,19 @@
         "public": "./public"
     },
     "less": [
-        "./less/style.less",
-        "./less/jqueryuipatch.less"
+        "./public/less/style.less",
+        "./public/less/jqueryuipatch.less"
     ],
 	"library": "./index.js",
     "scripts": [
-        "./lib/client/client.js",
-        "./lib/client/form.js",
-        "./lib/client/acpforms.js"
+        "./public/src/client.js",
+        "./public/src/form.js",
+        "./public/src/acpforms.js"
     ],
+	"templates": "./public/templates",
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init" },
         { "hook": "filter:admin.header.build", "method": "hooks.filter.admin.header.build" },
         { "hook": "filter:parse.post", "method": "hooks.filter.parse.post" }
-	],
-	"templates": "./public/templates"
+	]
 }

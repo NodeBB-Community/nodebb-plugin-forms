@@ -111,6 +111,10 @@
 		};
 
 		SocketPlugins.PluginForms = {};
+		SocketPlugins.PluginForms.getRecords = function(socket, data, callback) {
+			var uid = socket.uid,
+				ip = socket.ip;
+		};
 		SocketPlugins.PluginForms.submit = function(socket, data, callback) {
 			var uid = socket.uid,
 				ip = socket.ip,

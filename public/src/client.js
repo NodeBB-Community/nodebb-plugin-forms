@@ -1,8 +1,6 @@
 $(window).on('action:ajaxify.end', function(event, data) {
-	if (document.getElementById("plugin-forms")) {
-		require(['/plugins/nodebb-plugin-forms/public/vendor/templates.js'], function(){
-			ACPForms.load();
-		});
+	if (document.getElementById("pfa-records")) {
+		socket.emit('admin.settings.syncPluginForms');
 	}
 
 	var $form = $('.pf-form');
@@ -12,7 +10,7 @@ $(window).on('action:ajaxify.end', function(event, data) {
 			$form.parsley();
 		});
 
-		$('.pf-csrf').each(function(){
+		$('.pf-csrf').each(function() {
 			$csrf = $(this);
 			$.get('/api/config', function (data) {
 				$csrf.val(data.csrf_token);
