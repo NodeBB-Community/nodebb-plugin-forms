@@ -71,8 +71,8 @@
 					// time: timestamp,
 					// owner: uid,
 					// status: 'denied' 'approved' 'finished' 'waiting' 'deleted',
-					// waitingOn: [uid,uid,uid],
-					// cc: [uid, uid, uid],
+					// waitingOn: "[uid,uid,uid]",
+					// cc: "[uid, uid, uid]",
 					// values: {
 						// inputname1: inputvalue1,
 						// inputname2: inputvalue2,
@@ -115,52 +115,7 @@
 			var uid = socket.uid,
 				ip = socket.ip;
 		};
-		SocketPlugins.PluginForms.submit = function(socket, data, callback) {
-			var uid = socket.uid,
-				ip = socket.ip,
-				stamp = Date.now(),
-				values = {}, pair, formid, formdata, username;
-
-			data.form = data.form.split('&');
-			for (var i in data.form) {
-				pair = data.form[i].split('=');
-				if (pair[1]) {
-					if (values.hasOwnProperty(pair[0])) {
-						if (!Array.isArray(values[pair[0]])) {
-							values[pair[0]] = [values[pair[0]]];
-						}
-						values[pair[0]].push(pair[1]);
-					}else{
-						values[pair[0]] = pair[1];
-					}
-				}
-			}
-
-			formid = values['formid'];
-			if (!formid) return console.log("Uh oh, something went wrong with a form submission, no ID was found. Ignoring the submission.");
-
-			console.log('UID '+ uid +' submitted form ID "'+ formid +'"');
-			// TODO: Check for the record id and append it.
-			PluginForms.settings.set('records.' + stamp, {
-				formid: formid,
-				time: stamp,
-				owner: uid,
-				ip: ip,
-				status: 'finished',
-				waitingOn: [],
-				cc: [],
-				values: values,
-				comments: [],
-				actions: []
-			});
-			PluginForms.settings.persist();
-
-			formdata = PluginForms.settings.get('forms.' + formids.indexOf(formid));
-			User.getUsernamesByUids([uid], function(err, users) {
-				if (err) return;
-				callback(null, {username: users[0], formname: formdata.title});
-			});
-		};
+		SocketPlugins.PluginForms.submit = db.addResult;
 
 		callback();
 	};

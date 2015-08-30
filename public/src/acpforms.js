@@ -3,7 +3,167 @@
 define('admin/plugins/plugin-forms/form-builder', function () {
 	var ACPForms = { };
 
-	ACPForms.formElements = { };
+	formElements = {
+		'text': {
+			display: 'Text',
+			camel: 'Text',
+			erasable: true,
+			requirable: true,
+			group: 'standard',
+			description: 'Input a single line of text.',
+			template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
+						<input data-name="name" data-value="default" class="pfa-input" name="{name}" type="text" value="{default}"/>'
+		},
+		'textarea': {
+			display: 'Text Area',
+			camel: 'TextArea',
+			erasable: true,
+			requirable: true,
+			group: 'standard',
+			description: 'Input a multiple lines of text.',
+			template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
+						<textarea data-name="name" data-text="default" class="pfa-input" name="{name}">{default}</textarea>'
+		},
+		'number': {
+			display: 'Number',
+			camel: 'Number',
+			erasable: true,
+			requirable: true,
+			group: 'standard',
+			description: 'Input a number.',
+			template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
+						<input data-name="name" data-value="default" class="pfa-input" name="{name}" type="number" value="{default}"/>'
+		},
+		'radiogroup': {
+			display: 'Multiple Choice',
+			camel: 'RadioGroup',
+			single: 'radio',
+			erasable: true,
+			requirable: true,
+			group: 'standard',
+			description: '',
+			template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
+						<!-- BEGIN options -->\
+						<div class="radio" data-object="options">\
+							<input data-checked="default" data-attribute-value="value" class="pfa-input" type="radio" value="{options.value}" name="{name}" data-name="{name}" <!-- IF options.default -->checked="checked"<!-- ENDIF options.default -->/>\
+							<label data-text="label" class="control-label pfa-input-option-label" tabindex="0">{options.label}</label>\
+						</div>\
+						<!-- END options -->',
+			newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
+		},
+		'checkboxes': {
+			display: 'Check Group',
+			camel: 'Checkboxes',
+			single: 'checkbox',
+			erasable: true,
+			requirable: true,
+			group: 'standard',
+			description: '',
+			template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
+						<!-- BEGIN options -->\
+						<div class="checkbox" data-object="options">\
+							<input data-checked="default" data-attribute-value="value" class="pfa-input" type="checkbox" value="{options.value}" name="{name}" data-name="{name}" <!-- IF options.default -->checked="checked"<!-- ENDIF options.default -->/>\
+							<label data-text="label" class="control-label pfa-input-option-label" tabindex="0">{options.label}</label>\
+						</div>\
+						<!-- END options -->',
+			newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
+		},
+		'select': {
+			display: 'Dropdown',
+			camel: 'Select',
+			erasable: true,
+			requirable: true,
+			group: 'standard',
+			description: '',
+			template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
+						<select data-name="name" data-value="default" value="{default}" class="pfa-input" name="{name}">\
+						<!-- BEGIN options -->\
+						<option data-object="options" data-attribute-value="value" data-selected="default" data-text="label" class="pfa-input-option" value="{options.value}" <!-- IF options.default -->selected="selected"<!-- ENDIF options.default -->>{options.label}</option>\
+						<!-- END options -->\
+						</select>',
+			newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
+		},
+		'selectmultiple': {
+			display: 'List Box',
+			camel: 'SelectMultiple',
+			erasable: true,
+			requirable: true,
+			group: 'standard',
+			description: '',
+			template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
+						<select data-name="name" data-value="default" class="pfa-input" name="{name}" multiple>\
+						<!-- BEGIN options -->\
+						<option data-object="options" data-attribute-value="value" data-selected="default" data-text="label" class="pfa-input-option" value="{options.value}" <!-- IF options.default -->selected="selected"<!-- ENDIF options.default -->>{options.label}</option>\
+						<!-- END options -->\
+						</select>',
+			newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
+		},
+		'hidden': {
+			display: 'Hidden',
+			camel: 'Hidden',
+			erasable: true,
+			group: 'standard',
+			bgFill: '#EEE',
+			description: 'An input that is hidden from the user.',
+			template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
+						<input data-name="name" data-value="default" class="pfa-input" name="{name}" type="text" value="{default}"/>'
+		},
+		'buttons': {
+			type: 'buttons',
+			display: 'Buttons',
+			camel: 'Buttons',
+			group: 'standard',
+			description: 'A group of scriptable buttons',
+			template: '<div data-container class="btn-group"><!-- BEGIN buttons --><button data-object="buttons" data-type="type" data-text="label" type="{buttons.type}">{buttons.label}</button><!-- END buttons --></div>',
+			newdata: {buttons: [{type: 'submit', label: 'Submit'},{type: 'reset', label: 'Reset'}]}
+		},
+
+		'url': {display: 'Link', camel: 'URL', erasable: true, requirable: true, group: 'advanced'},
+		'email': {display: 'E-Mail', camel: 'Email', erasable: true, requirable: true, group: 'advanced'},
+		'price': {display: 'Price', camel: 'Price', erasable: true, requirable: true, group: 'advanced'},
+		'address': {display: 'Address', camel: 'Address', erasable: true, requirable: true, group: 'advanced'},
+		'date': {display: 'Date', camel: 'Date', erasable: true, requirable: true, group: 'advanced'},
+		'time': {display: 'Time', camel: 'Time', erasable: true, requirable: true, group: 'advanced'},
+		'select2': {display: 'Select2', camel: 'Select2', erasable: true, requirable: true, group: 'advanced'},
+
+		'info': {
+			display: 'Text Info',
+			camel: 'Info',
+			group: 'decor',
+			description: '',
+			template:	'<label data-text="label" class="control-label h3" tabindex="0">{label}</label>\
+						<textarea data-value="default" class="pfa-input">{default}</textarea>'
+		},
+		'divider': {
+			display: 'Divider',
+			camel: 'Divider',
+			group: 'decor',
+			description: '',
+			template:	'<hr>'
+		},
+
+		'sendusers': {
+			display: 'Send to Users',
+			camel: 'SendUsers',
+			scriptable: true,
+			group: 'phase',
+			bgFill: '#EEF',
+			description: 'Send the remaining form to users.',
+			template:	'<span>Send the remaining form to the user(s): </span>\
+						<input data-value="users" value="{users}">',
+			newdata: {users:''}
+		},
+		'validate': {
+			display: 'Validate Form',
+			camel: 'Validate',
+			scriptable: true,
+			group: 'phase',
+			bgFill: '#EEF',
+			description: 'Validate the form before showing the remaining.',
+			template:	'<span>Validate the form so far before showing the rest of the form.</span>'
+		}
+	};
+
 	ACPForms.init = function () {
 		console.log("Loading Plugin Forms Form Builder...");
 
@@ -21,166 +181,6 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 			countNewForms = 0,
 			$openForm, $openInput, openInput;
 
-		ACPForms.formElements = {
-			'text': {
-				display: 'Text',
-				camel: 'Text',
-				erasable: true,
-				requirable: true,
-				group: 'standard',
-				description: 'Input a single line of text.',
-				template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
-							<input data-name="name" data-value="default" class="pfa-input" name="{name}" type="text" value="{default}"/>'
-			},
-			'textarea': {
-				display: 'Text Area',
-				camel: 'TextArea',
-				erasable: true,
-				requirable: true,
-				group: 'standard',
-				description: 'Input a multiple lines of text.',
-				template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
-							<textarea data-name="name" data-text="default" class="pfa-input" name="{name}">{default}</textarea>'
-			},
-			'number': {
-				display: 'Number',
-				camel: 'Number',
-				erasable: true,
-				requirable: true,
-				group: 'standard',
-				description: 'Input a number.',
-				template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
-							<input data-name="name" data-value="default" class="pfa-input" name="{name}" type="number" value="{default}"/>'
-			},
-			'radiogroup': {
-				display: 'Multiple Choice',
-				camel: 'RadioGroup',
-				single: 'radio',
-				erasable: true,
-				requirable: true,
-				group: 'standard',
-				description: '',
-				template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
-							<!-- BEGIN options -->\
-							<div class="radio" data-object="options">\
-								<input data-checked="default" data-attribute-value="value" class="pfa-input" type="radio" value="{options.value}" name="{name}" data-name="{name}" <!-- IF options.default -->checked="checked"<!-- ENDIF options.default -->/>\
-								<label data-text="label" class="control-label pfa-input-option-label" tabindex="0">{options.label}</label>\
-							</div>\
-							<!-- END options -->',
-				newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
-			},
-			'checkboxes': {
-				display: 'Check Group',
-				camel: 'Checkboxes',
-				single: 'checkbox',
-				erasable: true,
-				requirable: true,
-				group: 'standard',
-				description: '',
-				template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
-							<!-- BEGIN options -->\
-							<div class="checkbox" data-object="options">\
-								<input data-checked="default" data-attribute-value="value" class="pfa-input" type="checkbox" value="{options.value}" name="{name}" data-name="{name}" <!-- IF options.default -->checked="checked"<!-- ENDIF options.default -->/>\
-								<label data-text="label" class="control-label pfa-input-option-label" tabindex="0">{options.label}</label>\
-							</div>\
-							<!-- END options -->',
-				newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
-			},
-			'select': {
-				display: 'Dropdown',
-				camel: 'Select',
-				erasable: true,
-				requirable: true,
-				group: 'standard',
-				description: '',
-				template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
-							<select data-name="name" data-value="default" value="{default}" class="pfa-input" name="{name}">\
-							<!-- BEGIN options -->\
-							<option data-object="options" data-attribute-value="value" data-selected="default" data-text="label" class="pfa-input-option" value="{options.value}" <!-- IF options.default -->selected="selected"<!-- ENDIF options.default -->>{options.label}</option>\
-							<!-- END options -->\
-							</select>',
-				newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
-			},
-			'selectmultiple': {
-				display: 'List Box',
-				camel: 'SelectMultiple',
-				erasable: true,
-				requirable: true,
-				group: 'standard',
-				description: '',
-				template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
-							<select data-name="name" data-value="default" class="pfa-input" name="{name}" multiple>\
-							<!-- BEGIN options -->\
-							<option data-object="options" data-attribute-value="value" data-selected="default" data-text="label" class="pfa-input-option" value="{options.value}" <!-- IF options.default -->selected="selected"<!-- ENDIF options.default -->>{options.label}</option>\
-							<!-- END options -->\
-							</select>',
-				newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
-			},
-			'hidden': {
-				display: 'Hidden',
-				camel: 'Hidden',
-				erasable: true,
-				group: 'standard',
-				bgFill: '#EEE',
-				description: 'An input that is hidden from the user.',
-				template:	'<label data-text="label" class="control-label" tabindex="0">{label}</label>\
-							<input data-name="name" data-value="default" class="pfa-input" name="{name}" type="text" value="{default}"/>'
-			},
-			'buttons': {
-				type: 'buttons',
-				display: 'Buttons',
-				camel: 'Buttons',
-				group: 'standard',
-				description: 'A group of scriptable buttons',
-				template: '<div data-container class="btn-group"><!-- BEGIN buttons --><button data-object="buttons" data-type="type" data-text="label" type="{buttons.type}">{buttons.label}</button><!-- END buttons --></div>',
-				newdata: {buttons: [{type: 'submit', label: 'Submit'},{type: 'reset', label: 'Reset'}]}
-			},
-
-			'url': {display: 'Link', camel: 'URL', erasable: true, requirable: true, group: 'advanced'},
-			'email': {display: 'E-Mail', camel: 'Email', erasable: true, requirable: true, group: 'advanced'},
-			'price': {display: 'Price', camel: 'Price', erasable: true, requirable: true, group: 'advanced'},
-			'address': {display: 'Address', camel: 'Address', erasable: true, requirable: true, group: 'advanced'},
-			'date': {display: 'Date', camel: 'Date', erasable: true, requirable: true, group: 'advanced'},
-			'time': {display: 'Time', camel: 'Time', erasable: true, requirable: true, group: 'advanced'},
-			'select2': {display: 'Select2', camel: 'Select2', erasable: true, requirable: true, group: 'advanced'},
-
-			'info': {
-				display: 'Text Info',
-				camel: 'Info',
-				group: 'decor',
-				description: '',
-				template:	'<label data-text="label" class="control-label h3" tabindex="0">{label}</label>\
-							<textarea data-value="default" class="pfa-input">{default}</textarea>'
-			},
-			'divider': {
-				display: 'Divider',
-				camel: 'Divider',
-				group: 'decor',
-				description: '',
-				template:	'<hr>'
-			},
-
-			'sendusers': {
-				display: 'Send to Users',
-				camel: 'SendUsers',
-				scriptable: true,
-				group: 'phase',
-				bgFill: '#EEF',
-				description: 'Send the remaining form to users.',
-				template:	'<span>Send the remaining form to the user(s): </span>\
-							<input data-value="users" value="{users}">',
-				newdata: {users:''}
-			},
-			'validate': {
-				display: 'Validate Form',
-				camel: 'Validate',
-				scriptable: true,
-				group: 'phase',
-				bgFill: '#EEF',
-				description: 'Validate the form before showing the remaining.',
-				template:	'<span>Validate the form so far before showing the rest of the form.</span>'
-			}
-		};
 		var	elementGroups = {
 				standard: {
 					pillStyle: 'pfa-pill-info'
@@ -203,10 +203,10 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 											</div>\
 										</div>';
 
-		for (var formElement in ACPForms.formElements) {
-			$('#pfa-inputs-panel-' + ACPForms.formElements[formElement].group)
-				.append($.parseHTML('<div class="btn-draggable '+ (elementGroups[ACPForms.formElements[formElement].group].pillStyle || 'pfa-pill-info') +'" type="'+ formElement +'">\
-										<span class="text-center">'+ (ACPForms.formElements[formElement].display || formElement) +'</span>\
+		for (var formElement in formElements) {
+			$('#pfa-inputs-panel-' + formElements[formElement].group)
+				.append($.parseHTML('<div class="btn-draggable '+ (elementGroups[formElements[formElement].group].pillStyle || 'pfa-pill-info') +'" type="'+ formElement +'">\
+										<span class="text-center">'+ (formElements[formElement].display || formElement) +'</span>\
 									</div>'));
 		}
 
@@ -297,7 +297,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 			if (!inputSortable || !type) return;
 
 			var stamp = Date.now(),
-				formElement = ACPForms.formElements[type] || ACPForms.formElements.text,
+				formElement = formElements[type] || formElements.text,
 				inputHtml = '', html = '';
 
 			data = data || formElement.newdata || { };
@@ -310,7 +310,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 				inputHtml = templates.parse(formElement.template, data)
 					.replace('/{.*}/g', '');
 			}else{
-				inputHtml = templates.parse(ACPForms.formElements.text.template, data)
+				inputHtml = templates.parse(formElements.text.template, data)
 					.replace('/{.*}/g', '');
 			}
 			html += '<li class="panel panel-default pfa-input-panel clearfix form-group" type="'+ type +'"'+ (formElement.bgFill ? ' style="background-color:'+ formElement.bgFill +'"' : '') +'>\
@@ -344,7 +344,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 			$openInput = $(e.target).closest('.pfa-input-panel');
 			openInput = ACPForms.getObjectFromInput($openInput);
 			type = openInput.type;
-			formElement = ACPForms.formElements[type] || ACPForms.formElements.text;
+			formElement = formElements[type] || formElements.text;
 
 			$modalInputTitle.text(formElement.display + ' Settings');
 			$modalInputContent.empty();
@@ -357,7 +357,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 				);
 			};
 			for (key in openInput) {
-				if (key !== 'type' && key !== 'require' && !ACPForms.formElements[key.toLowerCase().slice(2)]) {
+				if (key !== 'type' && key !== 'require' && !formElements[key.toLowerCase().slice(2)]) {
 					if (Array.isArray(openInput[key]) && typeof openInput[key][0] === 'object') {
 						if (!$modalInputContent.find('[data-modal-array='+key+']').length) {
 							$modalInputContent.append(modalInputArrayTemplate.replace('{key}', key));
@@ -399,7 +399,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 			openInput = ACPForms.getObjectFromInput($modalInput);
 
 			$openInput.children().filter(":not(button.btn)").remove();
-			$openInput.append(templates.parse(ACPForms.formElements[$openInput.attr('type')].template || ACPForms.formElements.text, openInput));
+			$openInput.append(templates.parse(formElements[$openInput.attr('type')].template || formElements.text, openInput));
 			$modalInput.modal('hide');
 		});
 
@@ -708,7 +708,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 		});
 	};
 
-	function setObjectKey(_obj, key, val) {
+	ACPForms.setObjectKey = function(_obj, key, val) {
 		var part, obj, parts;
 
 		if (val != null && key) {
@@ -726,7 +726,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 		}
 	}
 
-	function getObjectFromInput($inputPanel) {
+	ACPForms.getObjectFromInput = function($inputPanel) {
 		var type, input,
 			label, name, require;
 
@@ -736,7 +736,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 		require = $inputPanel.find('[data-require]').data('require');
 		if (require) input.require = require;
 
-		input['is' + (ACPForms.formElements[type] ? ACPForms.formElements[type].camel : 'Text')] = true;
+		input['is' + (formElements[type] ? formElements[type].camel : 'Text')] = true;
 
 		$inputPanel.find('[data-value]:not([data-object] [data-value], [data-object])').each(function(){
 			ACPForms.setObjectKey(input, this.getAttribute('data-value'), $(this).val());
@@ -788,7 +788,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 			});
 		});
 		return input;
-	}
+	};
 
 	return ACPForms;
 });
