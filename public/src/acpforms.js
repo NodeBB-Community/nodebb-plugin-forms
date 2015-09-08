@@ -1,6 +1,13 @@
 "use strict";
 
-define('admin/plugins/plugin-forms/form-builder', function () {
+define('admin/plugins/plugin-forms/plugin-forms', function () {
+	var FormsACP = {
+		form: function (data) {
+
+		},
+		forms: {}
+	};
+
 	var ACPForms = { };
 
 	formElements = {
