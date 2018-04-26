@@ -1,250 +1,152 @@
-(function() {
-	"use strict";
+// nodebb-plugin-forms
 
-	var async = require('async'),
-		fs = require('fs'),
-		path = require('path'),
-		meta = module.parent.require('./meta'),
-		Settings = module.parent.require('./settings'),
-		db = module.parent.require('./database'),
-		User = module.parent.require('./user'),
-		Topics = module.parent.require('./topics'),
-		plugins = module.parent.require('./plugins'),
-		SocketAdmin = module.parent.require('./socket.io/admin'),
-		SocketPlugins = module.parent.require('./socket.io/modules'),
-		translator = module.parent.require('../public/src/modules/translator'),
-		app,
-		router,
-		middleware,
-		formids = [],
-		PluginForms = {},
-		util = require('util');
+const forms = require('forms')
 
-	PluginForms.init = function (params, callback) {
-		app = params.app;
-		router = params.router;
-		middleware = params.middleware;
+const fs = require('fs')
+const path = require('path')
+const util = require('util')
 
-		function renderAdminPage(req, res, next) {
-			res.render(req.path.slice(1).replace('api/',''), { });
-		}
+const async = require.main.require('async')
 
-		function addAdminPage(page) {
-			router.get('/admin/plugins/plugin-forms' + (page ? '/' + page : ''), middleware.admin.buildHeader, renderAdminPage);
-			router.get('/api/admin/plugins/plugin-forms' + (page ? '/' + page : ''), renderAdminPage);
-		}
+const meta = require.main.require('./src/meta')
+const Settings = require.main.require('./src/settings')
+const db = require.main.require('./src/database')
+const User = require.main.require('./src/user')
+const Topics = require.main.require('./src/topics')
+const plugins = require.main.require('./src/plugins')
+const SocketAdmin = require.main.require('./src/socket.io/admin')
+const SocketPlugins = require.main.require('./src/socket.io/modules')
 
-		addAdminPage();
-		addAdminPage('form-builder');
-		addAdminPage('input-builder');
+const translator = require.main.require('./public/src/modules/translator')
 
-		router.get('/plugin-forms/config', function (req, res) {
-			res.status(200);
-		});
+let app, router, middleware
+let PluginForms = {}
 
-		router.post('/forms/post', middleware.buildHeader, PluginForms.renderPost);
+function getFormObject (formID, next) {
+  db.getObject(`plugin-forms:formid:${formID}`, (err, form) => {
+    if (err) return next(err)
 
-		var defaultSettings = {
-			forms: []
-		};
+    next(null, form)
+  })
+}
 
-		// settings: {
-			// forms: [
-				// {
-					// formid: "form1",
-					// title: "Form One",
-					// inputs: [
-						// {
-							// type: "text",
-							// label: "Enter Some Text"
-							// isINPUT: true,
-							// options: [{value: 'value', text: 'text'}]
-						// }
-					// ],
-					// options: {width: 100}
-					// action: {method: 'POST', uri: '//forms/form1/post/'}
-				// }
-			// ]
-			// records: {
-				// recordid: {
-					// formid: formid;
-					// time: timestamp,
-					// owner: uid,
-					// status: 'denied' 'approved' 'finished' 'waiting' 'deleted',
-					// waitingOn: "[uid,uid,uid]",
-					// cc: "[uid, uid, uid]",
-					// values: {
-						// inputname1: inputvalue1,
-						// inputname2: inputvalue2,
-						// inputname3: {uid: uid, time: timestamp, value: inputvalue3}
-					// }
+function getFormData (formID, next) {
+  db.getObjectField('plugin-forms:formdata', formID, (err, formData) => {
+    if (err) return next(err)
 
-					// comments: [
-						// {
-							// uid: uid,
-							// time: timestamp,
-							// private: true false,
-							// comment: 'comment'
-						// }
-					// ]
-					// actions: [
-						// {
-							// time: timestamp,
-							// uid: uid,
-							// action: 'approve', 'unapprove', 'deny', 'delegateTo:uid', 'lock', 'delete'
-						// }
-					// ]
-				// }
-			// }
-		// }
+    try {
+      formData = JSON.parse(formData)
+    } catch (err) {
+      return next(err)
+    }
 
-		PluginForms.settings = new Settings('plugin-forms', '0.0.1', defaultSettings, function() {
-			PluginForms.setRoutes();
-			setTimeout(PluginForms.logSettings, 2000);
-		});
+    next(null, formData)
+  })
+}
 
-		SocketAdmin.settings.syncPluginForms = function (forms) {
-			PluginForms.settings.sync(function(){
-				PluginForms.setRoutes();
-				PluginForms.logForms();
-			});
-		};
+function getFormHTML (formID, next) {
+  getFormData(formID, (err, formData) => {
+    if (err) return next(err)
 
-		SocketPlugins.PluginForms = {};
-		SocketPlugins.PluginForms.getRecords = function(socket, data, callback) {
-			var uid = socket.uid,
-				ip = socket.ip;
-		};
-		SocketPlugins.PluginForms.submit = db.addResult;
+    next(null, forms.create(formData).toHTML())
+  })
+}
 
-		callback();
-	};
+function renderPost (content, next) {
+  let matches, formID, renderedForm
+  let pattern = /\(form:(.+)\)/g
 
-	PluginForms.setRoutes = function (formID) {
-		formids = [];
-		var forms = PluginForms.settings.get('forms');
-		for (var i = 0; i < forms.length; i++) {
-			formids.push(forms[i].formid);
-			router.get('/forms/' + forms[i].formid, middleware.buildHeader, PluginForms.renderForm);
-		}
+  matches = content.match(pattern)
 
-		// TODO: Clear old routes
-		// for (var i = 0; i < routes.length; i++) {
-			// if (is_old_route) {
-				// app.routes.get.splice(i,1);
-			// }
-		// }
-	}
+  if (!matches || !matches[1]) return next(null, content)
 
-	PluginForms.renderForm = function (req, res, next) {
-		var path = req.route.path.split('/');
-		var formid = path[path.length-1];
-		var formIndex = formids.indexOf(formid);
-		var data = !!~formIndex ? PluginForms.settings.get('forms')[formIndex] : { };
-		if (data.container) {
-			data['use' + data.container.charAt(0).toUpperCase() + data.container.slice(1)] = true;
-		}
-		res.render('views/form', data);
-	}
+  formID = matches[1]
 
-	PluginForms.renderPost = function (req, res, next) {
-		var data = {pairs: []};
-		for (var name in req.body) {
-			if (name !== '_csrf') {
-				if (Array.isArray(req.body[name])) {
-					req.body[name] = JSON.stringify(req.body[name]);
-				}
-				data.pairs.push({name: name, value: req.body[name]});
-			}
-		}
-		res.render('views/post', data);
-	}
+  getFormHTML(formID, (err, formHTML) => {
+    if (err) return next(null, content)
 
-	PluginForms.logSettings = function () {
-		var config = PluginForms.settings.get();
-		console.log("PluginForms Settings:");
-		console.log(util.inspect(config, false, null));
-	};
+    content = content.replace(pattern, formHTML)
 
-	PluginForms.logForms = function () {
-		var config = PluginForms.settings.get('forms');
-		console.log("PluginForms Forms:");
-		console.log(util.inspect(config, false, null));
-	};
+    next(null, content)
+  })
+}
 
-	PluginForms.hooks = {
-		filter: {
-			admin: {
-				header: {
-					build: function(custom_header, callback) {
-						custom_header.plugins.push({
-							"route": '/plugins/plugin-forms',
-							"icon": 'fa-edit',
-							"name": 'Forms - Settings'
-						});
-						custom_header.plugins.push({
-							"route": '/plugins/plugin-forms/form-builder',
-							"icon": 'fa-edit',
-							"name": 'Forms - Form Builder'
-						});
-						custom_header.plugins.push({
-							"route": '/plugins/plugin-forms/input-builder',
-							"icon": 'fa-edit',
-							"name": 'Forms - Input Builder'
-						});
+function renderFormPage (req, res, next) {
+  const formID = req.params.formID
 
-						callback(null, custom_header);
-					}
-				}
-			},
-			parse: {
-				post: function(data, callback) {
-					if (data && data.postData && data.postData.content) {
-						User.isAdministrator(data.postData.uid, function(err, isAdmin) {
-							if (!err && isAdmin) {
-								db.getObjectField('topic:' + data.postData.tid, 'mainPid', function (err, pid) {
-									if (!err && data.postData.pid === pid) {
-										renderPost(data.postData.content, function (err, content) {
-											data.postData.content = content;
-											return callback(null, data);
-										});
-									}else{
-										data.postData.content = data.postData.content.replace(/\(form:(.+)\)/g, '');
-										return callback(null, data);
-									}
-								});
-							}else{
-								data.postData.content = data.postData.content.replace(/\(form:(.+)\)/g, '');
-								return callback(null, data);
-							}
-						});
-					}else{
-						data.postData.content = data.postData.content.replace(/\(form:(.+)\)/g, '');
-						return callback(null, data);
-					}
-				}
-			}
-		}
-	}
+  getFormHTML(formID, (err, formHTML) => {
+    res.render('views/form', {formHTML})
+  })
+}
 
-	var renderPost = function (data, callback) {
-		var pattern = /\(form:(.+)\)/;
-		var matches = data.match(pattern) || null;
-		if (!matches) {
-			return callback(null, data);
-		}
-		var formIndex = formids.indexOf(matches[1]);
-		var formdata = !!~formIndex ? PluginForms.settings.get('forms')[formIndex] : null;
-		if (formdata) {
-			app.render('views/form', formdata, function(err, form){
-				data = form ? data.replace(matches[0], form) : data.replace(matches[0], '');
-				return callback(null, data);
-			});
-		}else{
-			data = data.replace(/\(form:(.+)\)/g, '');
-			return callback(null, data);
-		}
-	}
+PluginForms.init = (params, next) => {
+  const {app, router, middleware} = params
 
-	module.exports = PluginForms;
-})();
+  function renderAdminPage (req, res, next) {
+    res.render(req.path.slice(1).replace('api/',''), {})
+  }
+
+  function addAdminPage(page) {
+    router.get('/admin/plugins/plugin-forms' + (page ? '/' + page : ''), middleware.admin.buildHeader, renderAdminPage)
+    router.get('/api/admin/plugins/plugin-forms' + (page ? '/' + page : ''), renderAdminPage)
+  }
+
+  addAdminPage()
+  addAdminPage('form-builder')
+  addAdminPage('input-builder')
+
+  router.get('/plugin-forms/config', (req, res) => res.status(200))
+
+  router.get('/forms/:formID', middleware.buildHeader, renderFormPage)
+
+  var defaultSettings = {}
+
+  PluginForms.settings = new Settings('plugin-forms', '0.0.1', defaultSettings)
+
+  SocketAdmin.settings.syncPluginForms = function (forms) {
+    PluginForms.settings.sync()
+  }
+
+  SocketPlugins.PluginForms = {}
+
+  SocketPlugins.PluginForms.getRecords = (socket, data, next) => {
+    let uid = socket.uid
+    let ip = socket.ip
+  }
+
+  next()
+}
+
+PluginForms.adminHeaderBuild = (custom_header, next) => {
+  custom_header.plugins.push({
+    "route": '/plugins/plugin-forms/form-builder',
+    "icon": 'fa-edit',
+    "name": 'Forms',
+  })
+
+  next(null, custom_header)
+}
+
+PluginForms.parsePost = (data, next) => {
+  function fail () {
+    data.postData.content =  data.postData.content.replace(/\(form:(.+)\)/g, '')
+    next(null, data)
+  }
+
+  if (!(data && data.postData && data.postData.content)) return fail()
+
+  User.isAdministrator(data.postData.uid, function(err, isAdmin) {
+    if (err && !isAdmin) return fail()
+
+    db.getObjectField('topic:' + data.postData.tid, 'mainPid', function (err, pid) {
+      if (err && data.postData.pid !== pid) return fail()
+
+      renderPost(data.postData.content, function (err, content) {
+        data.postData.content = content
+        next(null, data)
+      })
+    })
+  })
+}
+
+module.exports = PluginForms

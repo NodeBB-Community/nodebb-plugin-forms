@@ -1,25 +1,25 @@
 {
-	"id": "nodebb-plugin-forms",
-	"name": "NodeBB Plugin Forms",
-	"description": "Create awesome forms for your forum.",
-	"url": "https://github.com/pitaj/nodebb-plugin-forms",
-    "staticDirs": {
-        "public": "./public"
-    },
-    "less": [
-        "./public/less/style.less",
-        "./public/less/jqueryuipatch.less"
-    ],
-	"library": "./index.js",
-    "scripts": [
-        "./public/src/client.js",
-        "./public/src/form.js",
-        "./public/src/acpforms.js"
-    ],
-	"templates": "./public/templates",
-	"hooks": [
-		{ "hook": "static:app.load", "method": "init" },
-        { "hook": "filter:admin.header.build", "method": "hooks.filter.admin.header.build" },
-        { "hook": "filter:parse.post", "method": "hooks.filter.parse.post" }
-	]
+  "id": "nodebb-plugin-forms",
+  "name": "NodeBB Plugin Forms",
+  "description": "Plugin for form management.",
+  "url": "https://github.com/NodeBB-Community/nodebb-plugin-forms",
+  "staticDirs": {
+    "public": "./public"
+  },
+  "less": [
+    "./public/less/style.less",
+    "./public/less/jqueryuipatch.less"
+  ],
+  "library": "./index.js",
+  "acpScripts": [
+    "./public/src/client.js",
+    "./public/src/form.js",
+    "./public/src/acpforms.js"
+  ],
+  "templates": "./public/templates",
+  "hooks": [
+    { "hook": "static:app.load", "method": "init" },
+    { "hook": "filter:admin.header.build", "method": "adminHeaderBuild" },
+    { "hook": "filter:parse.post", "method": "parsePost" }
+  ]
 }
