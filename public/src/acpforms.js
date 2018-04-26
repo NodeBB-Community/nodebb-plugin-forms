@@ -1,6 +1,6 @@
 // Plugin Forms - Admin Form Builder
 
-define('admin/plugins/plugin-forms/form-builder', function () {
+define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) => {
   var FormsACP = {
     forms: {}
   }
@@ -186,33 +186,14 @@ define('admin/plugins/plugin-forms/form-builder', function () {
 
     function addForm () {
       countNewForms++
-      $('#pfa-forms-list').append('\
-              <li class="panel panel-default pfa-form-panel">\
-                <input type="hidden" data-setting="Method" name="method" value="submit">\
-                <input type="hidden" data-setting="Action" name="action" value="/">\
-                <input type="hidden" data-setting="PayPal Command" name="cmd" value="">\
-                <input type="hidden" data-setting="Captcha Site Code" name="captchasite" value="">\
-                <input type="hidden" data-setting="Container" name="container" value="panel">\
-                <div class="panel-heading pfa-form-panel-heading clearfix">\
-                  <button type="button" class="btn btn-default pull-left pfa-btn-toggle-form">\
-                    <i class="fa fa-fw fa-arrow-down"></i>\
-                  </button>\
-                  <div class="panel-title pull-left">\
-                    <label data-text="formTitle" class="pfa-form-title" tabindex="0">New Form '+ countNewForms +'</label> (ID: <label data-text="formid" class="pfa-form-id" tabindex="0">'+ countNewForms +'</label>)\
-                  </div>\
-                  <button type="button" data-toggle="tooltip" data-placement="top" title="Delete Form" class="btn btn-danger pull-right pfa-btn-delete-form"><i class="fa fa-fw fa-times"></i></button>\
-                  <button type="button" data-toggle="tooltip" data-placement="top" title="Clone Form" class="btn btn-info pull-right pfa-btn-clone-form"><i class="fa fa-fw fa-copy"></i></button>\
-                  <button type="button" data-toggle="tooltip" data-placement="top" title="Form Settings" class="btn btn-success pull-right pfa-btn-edit-form"><i class="fa fa-fw fa-cog"></i></button>\
-                </div>\
-                <ul class="panel-body hidden ui-sortable pfa-input-list">\
-                </ul>\
-              </li>')
-      .sortable("refresh").on('mousedown', '.popover', function(e){
-        e.stopPropagation();
-      });
-      makeInputListSortable($('.pfa-input-list').last());
-      makeFormHeaderDroppable($('.pfa-form-panel-heading').last());
-      return $('#pfa-forms-list').children().last();
+
+      benchpress.parse('forms/builder/form', {countNewForms}, formHTML => {
+        $('#pfa-forms-list').append($.parseHTML(formHTML)).sortable("refresh").on('mousedown', '.popover', e => e.stopPropagation())
+        makeInputListSortable($('.pfa-input-list').last())
+        makeFormHeaderDroppable($('.pfa-form-panel-heading').last())
+      })
+
+      return $('#pfa-forms-list').children().last()
     }
 
     function makeFormsListSortable () {
@@ -283,7 +264,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
       data.label = ( typeof data.label !== 'undefined' ) ? data.label : ( ( formElement.display || 'Unknown' ) + ' Label' )
       data['default'] = data['default'] || ''
 
-      templates.parse(`forms/builder/elements/${template}`, data, inputHtml => {
+      benchpress.parse(`forms/builder/elements/${template}`, data, inputHtml => {
         html += '<li class="panel panel-default pfa-input-panel clearfix form-group" type="'+ type +'"'+ (formElement.bgFill ? ' style="background-color:'+ formElement.bgFill +'"' : '') +'>\
           <button type="button" data-toggle="tooltip" data-placement="top" title="Delete Input" class="btn btn-danger pull-right  pfa-btn-input pfa-btn-delete-input"><i class="fa fa-fw fa-times"></i><span class="pfa-btn-span"> Delete</span></button>\
           <button type="button" data-toggle="tooltip" data-placement="top" title="Clone Input" class="btn btn-info pull-right    pfa-btn-input pfa-btn-clone-input"><i class="fa fa-fw fa-copy"></i><span class="pfa-btn-span"> Clone</span></button>\
@@ -379,7 +360,7 @@ define('admin/plugins/plugin-forms/form-builder', function () {
         openInput = ACPForms.getObjectFromInput($modalInput);
 
         $openInput.children().filter(":not(button.btn)").remove();
-        $openInput.append(templates.parse(formElements[$openInput.attr('type')].template || formElements.text, openInput));
+        $openInput.append(benchpress.parse(formElements[$openInput.attr('type')].template || formElements.text, openInput));
         $modalInput.modal('hide');
       });
 
