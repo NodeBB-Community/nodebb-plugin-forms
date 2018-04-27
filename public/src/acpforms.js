@@ -109,15 +109,14 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       camel: 'Info',
       group: 'decor',
       description: '',
-      template: '<label data-text="label" class="control-label h3" tabindex="0">{label}</label>\
-            <textarea data-value="default" class="pfa-input">{default}</textarea>'
+      template: 'info'
     },
     'divider': {
       display: 'Divider',
       camel: 'Divider',
       group: 'decor',
       description: '',
-      template: '<hr>'
+      template: 'divider'
     },
 
     'sendusers': {
@@ -140,7 +139,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       description: 'Validate the form before showing the remaining.',
       template: '<span>Validate the form so far before showing the rest of the form.</span>'
     }
-  };
+  }
 
   ACPForms.init = function () {
     console.log("Loading Plugin Forms Form Builder...")
@@ -176,14 +175,6 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
         }
     }
 
-    const modalInputTemplate = '<div class="form-group"><label class="col-sm-4 control-label">{label}</label><div class="col-sm-8"><input type="text" data-value="{key}" value="{value}"></div></div>'
-    const modalInputArrayTemplate = '<div class="pfa-modal-input-array" data-modal-array="{key}">\
-                      <div class="form-group">\
-                        <label class="control-label col-md-4" style="text-align:left;">Values</label>\
-                        <label class="control-label col-md-4" style="text-align:left;">Labels</label>\
-                      </div>\
-                    </div>'
-
     function addForm () {
       countNewForms++
 
@@ -204,13 +195,13 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
         forcePlaceholderSize: true,
         revert: true,
         start: function(e, ui) {
-          $(this).find('.panel-body').addClass('hidden');
-          $(this).find('.pfa-btn-toggle-form').blur().find('i').addClass('fa-arrow-down').removeClass('fa-arrow-up');
-          ui.helper.css('height', 50);
-          $(this).sortable('refreshPositions');
-          $('.popover').popover('destroy');
+          $(this).find('.panel-body').addClass('hidden')
+          $(this).find('.pfa-btn-toggle-form').blur().find('i').addClass('fa-arrow-down').removeClass('fa-arrow-up')
+          ui.helper.css('height', 50)
+          $(this).sortable('refreshPositions')
+          $('.popover').popover('destroy')
         }
-      });
+      })
     }
 
     function makeInputListSortable (element) {
@@ -220,15 +211,15 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
         forcePlaceholderSize: true,
         revert: true,
         start: function(event, ui) {
-          $(this).sortable('refreshPositions');
-          $('.popover').popover('destroy');
+          $(this).sortable('refreshPositions')
+          $('.popover').popover('destroy')
         },
         receive: function(event, ui) {
           if (event.target === this && ui.item.is('.btn-draggable')) {
-            addElement(this, ui.item.attr('type'));
+            addElement(this, ui.item.attr('type'))
           }
         }
-      });
+      })
     }
 
     function makeFormHeaderDroppable (element) {
@@ -247,7 +238,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
             //addElement($inputListSortable);
           //}
         }
-      });
+      })
     }
 
     function addElement (inputSortable, type, data) {
@@ -298,26 +289,22 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
         var type, formElement, key, $arr
 
         $openInput = $(e.target).closest('.pfa-input-panel');
-        openInput = ACPForms.getObjectFromInput($openInput);
+        openInput = ACPForms.getObjectFromElement($openInput);
         type = openInput.type;
         formElement = formElements[type] || formElements.text;
 
         $modalInputTitle.text(formElement.display + ' Settings');
         $modalInputContent.empty();
 
-        function makeModalInput(key, value) {
-          $modalInputContent.append(modalInputTemplate
-            .replace('{key}', key)
-            .replace('{value}', value)
-            .replace('{label}', key)
-          );
-        };
         for (key in openInput) {
           if (key !== 'type' && key !== 'require' && !formElements[key.toLowerCase().slice(2)]) {
             if (Array.isArray(openInput[key]) && typeof openInput[key][0] === 'object') {
               if (!$modalInputContent.find('[data-modal-array='+key+']').length) {
-                $modalInputContent.append(modalInputArrayTemplate.replace('{key}', key));
+                benchpress.parse('forms/builder/elementModalArray', {key}, html => {
+                  $modalInputContent.append($.parseHTML(html))
+                })
               }
+
               $arr = $modalInputContent.find('[data-modal-array='+key+']');
 
               for (var i in openInput[key]) {
@@ -334,13 +321,13 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
                         </div>\
                       </div>');
               }
-            }else{
-              makeModalInput(key, openInput[key]);
+            } else {
+              benchpress.parse('forms/builder/elementModalText', {key, value: openInput[key], label: key}, html => $modalInputContent.append($.parseHTML(html)))
             }
           }
         }
 
-        $modalInput.modal('show');
+        $modalInput.modal('show')
       }).on('mouseup', '#pfa-inputs-panel .btn-draggable', function (e) {
         var $btn = $(e.target).closest('.btn-draggable');
 
@@ -352,7 +339,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
           }
         }
       }).on('click', '#pfa-modal-input-save', function (e) {
-        openInput = ACPForms.getObjectFromInput($modalInput);
+        openInput = ACPForms.getObjectFromElement($modalInput);
 
         $openInput.children().filter(":not(button.btn)").remove();
         $openInput.append(benchpress.parse(formElements[$openInput.attr('type')].template || formElements.text, openInput));
@@ -651,7 +638,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
             $(this).find('.pfa-input-panel').each(function(){
               var $inputPanel = $(this);
 
-              settings.cfg._.forms[formIndex].inputs.push(ACPForms.getObjectFromInput($inputPanel));
+              settings.cfg._.forms[formIndex].inputs.push(ACPForms.getObjectFromElement($inputPanel));
             });
 
             countForms++;
@@ -683,7 +670,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
     }
   }
 
-  ACPForms.getObjectFromInput = function($inputPanel) {
+  ACPForms.getObjectFromElement = ($inputPanel, next) => {
     let type, input, label, name, require
 
     type = $inputPanel.attr('type');
