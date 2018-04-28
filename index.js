@@ -108,9 +108,54 @@ PluginForms.init = (params, next) => {
   SocketAdmin.forms = {}
 
   SocketAdmin.forms.save = (socket, data, next) => {
-    let {forms} = data
+    let {formsData} = data
 
-    console.log(forms)
+    formsData.forEach(formData => {
+      let {formid} = formData
+
+      try {
+        console.log('Saving formid:' + formid)
+        console.log(JSON.stringify(formData, null, 4))
+        formData = JSON.stringify(formData)
+      } catch (e) {
+        return console.log(e)
+      }
+
+      async.waterfall([
+        async.apply(db.sortedSetAdd, 'plugin-forms:formids', 0, formid),
+        async.apply(db.setObjectField, 'plugin-forms:formdata', `${formid}`, formData),
+        async.apply(db.setObject, `plugin-forms:formid:${formid}`, {lastModifiedByUid: socket.uid}),
+        (next) => {
+          db.getObjectField('plugin-forms:formdata', `${formid}`, (err, formData) => {
+            console.log('get plugin-forms:formdata')
+            console.log(formData)
+          })
+        }
+      ])
+    })
+  }
+
+  SocketAdmin.forms.load = (socket, data, next) => {
+    async.waterfall([
+      async.apply(db.getObject, 'plugin-forms:formdata'),
+    ], (err, formsData) => {
+      if (err) return console.log(err)
+
+      formsData = formsData || {}
+
+      try {
+        console.log('Loaded plugin-forms:formdata:')
+        console.log(JSON.stringify(formsData, null, 4))
+
+        Object.keys(formsData).forEach(formid => {
+          formsData[formid] = JSON.parse(formsData[formid])
+        })
+      } catch (err) {
+        return console.log(err)
+      }
+
+      next(null, formsData)
+    })
   }
 
   SocketPlugins.PluginForms = {}

@@ -568,13 +568,13 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
 
       // Parse form into 'forms' object.
       $('#save').click(() => {
-        let forms = []
+        let formsData = []
 
-        $('#pfa-forms-list').children().each(() => {
-          const formid = $(this).find('.pfa-form-id').text()
-          const title = $(this).find('.pfa-form-title').text()
+        $('#pfa-forms-list').children().each((i, $form) => {
+          $form = $($form)
 
-          let formIndex, i
+          const formid = $form.find('.pfa-form-id').text()
+          const title = $form.find('.pfa-form-title').text()
 
           let form = {
             formid,
@@ -583,14 +583,14 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
           }
 
           // Form Settings
-          $(this).find('[data-setting]').each((i, $el) => {
+          $form.children('[data-setting]').each((i, $el) => {
             $el = $($el)
 
             form[$el.attr('name')] = $el.val()
           })
 
           // Form Inputs
-          $(this).find('.pfa-input-panel').each((i, $inputPanel) => {
+          $form.find('.pfa-input-panel').each((i, $inputPanel) => {
             $inputPanel = $($inputPanel)
 
             form.elements.push(ACPForms.getObjectFromElement($inputPanel))
@@ -622,10 +622,16 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
             // ]
           // }
 
-          forms.push(form)
+          formsData.push(form)
         })
 
-        socket.emit('admin.forms.save', {forms})
+        socket.emit('admin.forms.save', {formsData})
+      })
+
+      makeFormsListSortable()
+
+      socket.emit('admin.forms.load', {}, (err, formsData) => {
+        console.dir(formsData)
       })
     }) // jqui
   } // init
