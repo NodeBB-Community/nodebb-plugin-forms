@@ -99,12 +99,18 @@ PluginForms.init = (params, next) => {
 
   router.get('/forms/:formID', middleware.buildHeader, renderFormPage)
 
-  var defaultSettings = {}
+  let defaultSettings = {}
 
   PluginForms.settings = new Settings('plugin-forms', '0.0.1', defaultSettings)
 
-  SocketAdmin.settings.syncPluginForms = function (forms) {
-    PluginForms.settings.sync()
+  SocketAdmin.settings.syncPluginForms = () => PluginForms.settings.sync()
+
+  SocketAdmin.forms = {}
+
+  SocketAdmin.forms.save = (socket, data, next) => {
+    let {forms} = data
+
+    console.log(forms)
   }
 
   SocketPlugins.PluginForms = {}

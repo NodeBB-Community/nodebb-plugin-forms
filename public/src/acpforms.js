@@ -566,88 +566,66 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
         scroll: false
       })
 
-      require(['settings'], function(settings) {
-        socket.emit('admin.settings.get', {
-          hash: 'plugin-forms'
-        }, function (err, values) {
-          if (err) {
-            console.log('Error getting values:', err)
-            settings.cfg._ = { }
-          } else {
-            settings.helper.whenReady(function () {
-              settings.helper.use(values)
-              if (!settings.cfg._.forms) {
-                settings.cfg._.forms = [ ]
-              }
+      // Parse form into 'forms' object.
+      $('#save').click(() => {
+        let forms = []
 
-              makeFormsListSortable()
+        $('#pfa-forms-list').children().each(() => {
+          const formid = $(this).find('.pfa-form-id').text()
+          const title = $(this).find('.pfa-form-title').text()
 
-              for (var i = 0; i < settings.cfg._.forms.length; i++) {
-                if (settings.cfg._.forms[i]) {
-                  var $newForm = addForm()
+          let formIndex, i
 
-                  $newForm.find('.pfa-form-id').text(settings.cfg._.forms[i].formid || 'empty')
-                  $newForm.find('.pfa-form-title').text(settings.cfg._.forms[i].title || 'empty')
-                  $newForm.find('input[data-setting]').each(function(ind, el) {
-                    $el = $(el)
-                    $el.val(settings.cfg._.forms[i][$el.attr('name')])
-                  })
-
-                  var $inputSortable = $('.pfa-input-list').last()
-
-                  for (var j = 0; j < settings.cfg._.forms[i].inputs.length; j++) {
-                    addElement($inputSortable, settings.cfg._.forms[i].inputs[j].type, settings.cfg._.forms[i].inputs[j])
-                  }
-                }
-              }
-            })
+          let form = {
+            formid,
+            title,
+            elements: []
           }
-        })
 
-        $('#save').click( function (event) {
-          event.preventDefault()
-          settings.cfg._.forms = [ ]
-          var countForms = 0
+          // Form Settings
+          $(this).find('[data-setting]').each((i, $el) => {
+            $el = $($el)
 
-          $('#pfa-forms-list').children().each(function(){
-            var formid = $(this).find('.pfa-form-id').text() || 'form' + countForms,
-              title = $(this).find('.pfa-form-title').text() || 'form' + countForms,
-              formIndex, i
-
-            for (i = 0; i < settings.cfg._.forms.length; i++) {
-              if (settings.cfg._.forms[i].formid === formid) {
-                formid += '_'
-                i = -1
-              }
-            }
-
-            formIndex = settings.cfg._.forms.push({
-              formid: formid,
-              title: title,
-              inputs: [ ]
-            }) - 1
-
-            $(this).find('[data-setting]').each(function(i, el){
-              var $el = $(el)
-              settings.cfg._.forms[formIndex][$el.attr('name')] = $el.val()
-            })
-
-            settings.cfg._.forms[formIndex].method = settings.cfg._.forms[formIndex].method
-            settings.cfg._.forms[formIndex].action = settings.cfg._.forms[formIndex].action
-
-            $(this).find('.pfa-input-panel').each(function(){
-              var $inputPanel = $(this)
-
-              settings.cfg._.forms[formIndex].inputs.push(ACPForms.getObjectFromElement($inputPanel))
-            })
-
-            countForms++
+            form[$el.attr('name')] = $el.val()
           })
 
-          settings.helper.persistSettings('plugin-forms', settings.cfg, true, function(){
-            socket.emit('admin.settings.syncPluginForms')
+          // Form Inputs
+          $(this).find('.pfa-input-panel').each((i, $inputPanel) => {
+            $inputPanel = $($inputPanel)
+
+            form.elements.push(ACPForms.getObjectFromElement($inputPanel))
           })
+
+          // Form Template
+          // {
+            // formid,
+            // title,
+            // elements: [
+              // {
+                // field,
+                // widget,
+                // required,
+                // label,
+                // id,
+                // choices: [
+                // ],
+                // validators: [
+                  // {}
+                // ],
+                // cssClasses,
+                // hideError,
+                // labelAfterField,
+                // errorAfterField,
+                // fieldsetClasses: [],
+                // legendClasses: [],
+              // }
+            // ]
+          // }
+
+          forms.push(form)
         })
+
+        socket.emit('admin.forms.save', {forms})
       })
     }) // jqui
   } // init
