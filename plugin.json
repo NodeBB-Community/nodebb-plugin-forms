@@ -20,6 +20,7 @@
   "hooks": [
     { "hook": "static:app.load", "method": "init" },
     { "hook": "filter:admin.header.build", "method": "adminHeaderBuild" },
-    { "hook": "filter:parse.post", "method": "parsePost" }
+    { "hook": "filter:parse.post", "method": "parsePost", "priority": 5 },
+    { "hook": "filter:parse.raw", "method": "parseRaw", "priority": 5 }
   ]
 }

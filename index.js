@@ -48,13 +48,14 @@ function getFormHTML (formID, next) {
   getFormData(formID, (err, formData) => {
     if (err) return next(err)
 
-    next(null, forms.create(formData).toHTML())
+    next(null, JSON.stringify(formData))
+    //next(null, forms.create(formData).toHTML())
   })
 }
 
 function renderPost (content, next) {
   let matches, formID, renderedForm
-  let pattern = /\(form:(.+)\)/g
+  let pattern = /\(form:(.+)\)/
 
   matches = content.match(pattern)
 
@@ -63,7 +64,7 @@ function renderPost (content, next) {
   formID = matches[1]
 
   getFormHTML(formID, (err, formHTML) => {
-    if (err) return next(null, content)
+    if (err || !formHTML) return next(null, content)
 
     content = content.replace(pattern, formHTML)
 
@@ -178,22 +179,34 @@ PluginForms.adminHeaderBuild = (custom_header, next) => {
   next(null, custom_header)
 }
 
+
+PluginForms.parseRaw = (content, next) => {
+  let pattern = /\(form:(.+)\)/g
+
+  content = content.replace(pattern, '')
+
+  next(null, content)
+}
+
 PluginForms.parsePost = (data, next) => {
+  let pattern = /\(form:(.+)\)/g
+
   function fail () {
-    data.postData.content =  data.postData.content.replace(/\(form:(.+)\)/g, '')
+    data.postData.content = data.postData.content.replace(pattern, '')
     next(null, data)
   }
 
   if (!(data && data.postData && data.postData.content)) return fail()
 
-  User.isAdministrator(data.postData.uid, function(err, isAdmin) {
-    if (err && !isAdmin) return fail()
+  db.getObjectField('topic:' + data.postData.tid, 'mainPid', (err, pid) => {
+    if (err || data.postData.pid !== parseInt(pid, 10)) return fail()
 
-    db.getObjectField('topic:' + data.postData.tid, 'mainPid', function (err, pid) {
-      if (err && data.postData.pid !== pid) return fail()
+    User.isAdministrator(data.postData.uid, (err, isAdmin) => {
+      if (err || !isAdmin) return fail()
 
-      renderPost(data.postData.content, function (err, content) {
-        data.postData.content = content
+      renderPost(data.postData.content, (err, content) => {
+        data.postData.content = content.replace(pattern, '')
+
         next(null, data)
       })
     })
