@@ -9,12 +9,14 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
 
   formElements = {
     'text': {
+      field: 'string',
+      widget: 'text',
       display: 'Text',
       camel: 'Text',
       erasable: true,
       requirable: true,
       group: 'standard',
-      description: 'Input a single line of text.',
+      description: 'A single line text input.',
       template: 'text'
     },
     'textarea': {
@@ -254,6 +256,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       data.value = data.value
       data.label = ( typeof data.label !== 'undefined' ) ? data.label : ( ( formElement.display || 'Unknown' ) + ' Label' )
       data['default'] = data['default'] || ''
+      data.element = type
 
       benchpress.parse(`forms/builder/elements/${template}`, data, elementHTML => {
         data.elementHTML = elementHTML
@@ -655,15 +658,20 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
   }
 
   ACPForms.getObjectFromElement = ($inputPanel, next) => {
-    let type, input, label, name, require
+    const element = $inputPanel.data('element')
+    const elementData = formElements[element]
+    const field = elementData.field || 'string'
+    const widget = elementData.widget || 'text'
+    const require = !!$inputPanel.find('[data-require]').length
 
-    type = $inputPanel.attr('type')
-    input = { type: type }
+    let input = {
+      element,
+      field,
+      widget,
+      require,
+    }
 
-    require = $inputPanel.find('[data-require]').data('require')
-    if (require) input.require = require
-
-    input['is' + (formElements[type] ? formElements[type].camel : 'Text')] = true
+    input['is' + (elementData.camel || 'Text')] = true
 
     $inputPanel.find('[data-value]:not([data-object] [data-value], [data-object])').each(function(){
       ACPForms.setObjectKey(input, this.getAttribute('data-value'), $(this).val())
@@ -714,6 +722,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
         obj[this.getAttribute('data-attribute-value')] = this.getAttribute('value')
       })
     })
+
     return input
   }
 
