@@ -17,6 +17,7 @@ const db = require.main.require('./src/database')
 const User = require.main.require('./src/user')
 const Topics = require.main.require('./src/topics')
 const plugins = require.main.require('./src/plugins')
+const cache = require.main.require('./src/posts/cache')
 const SocketAdmin = require.main.require('./src/socket.io/admin')
 const SocketPlugins = require.main.require('./src/socket.io/modules')
 
@@ -69,29 +70,12 @@ function getFormHTML (formID, next) {
   })
 }
 
-function renderPost (content, next) {
-  let matches, formID, renderedForm
-  let pattern = /\(form:(.+)\)/
-
-  matches = content.match(pattern)
-
-  if (!matches || !matches[1]) return next(null, content)
-
-  formID = matches[1]
-
-  getFormHTML(formID, (err, formHTML) => {
-    if (err || !formHTML) return next(null, content)
-
-    content = content.replace(pattern, formHTML)
-
-    next(null, content)
-  })
-}
-
 function renderFormPage (req, res, next) {
   const formID = req.params.formID
 
   getFormHTML(formID, (err, formHTML) => {
+    if (err) return res.redirect('/')
+
     res.render('views/form', {formHTML})
   })
 }
@@ -149,6 +133,12 @@ PluginForms.init = (params, next) => {
           })
         }
       ])
+
+      // Re-render all cached posts.
+      db.getSetMembers(`plugin-forms:formid:${formid}:cached`, (err, pids = []) => {
+        pids.forEach(pid => cache.del(String(pid)))
+        db.delete(`plugin-forms:formid:${formid}:cached`)
+      })
     })
   }
 
@@ -202,21 +192,46 @@ PluginForms.parseRaw = (content, next) => {
 
 PluginForms.parsePost = (data, next) => {
   let pattern = /\(form:(.+)\)/g
+  let pid = parseInt(data.postData.pid, 10)
 
   function fail () {
     data.postData.content = data.postData.content.replace(pattern, '')
     next(null, data)
   }
 
+  function renderPost (content, next) {
+    let matches, formID, renderedForm
+    let pattern = /\(form:(.+)\)/
+
+    matches = content.match(pattern)
+
+    if (!matches || !matches[1]) return next(new Error('No matched formID'))
+
+    formID = matches[1]
+
+    getFormHTML(formID, (err, formHTML) => {
+      if (err || !formHTML) return next(null, content)
+
+      // Store cached post.
+      db.setAdd(`plugin-forms:formid:${formID}:cached`, pid)
+
+      content = content.replace(pattern, formHTML)
+
+      next(null, content)
+    })
+  }
+
   if (!(data && data.postData && data.postData.content)) return fail()
 
-  db.getObjectField('topic:' + data.postData.tid, 'mainPid', (err, pid) => {
-    if (err || parseInt(data.postData.pid, 10) !== parseInt(pid, 10)) return fail()
+  db.getObjectField('topic:' + data.postData.tid, 'mainPid', (err, mainPid) => {
+    if (err || pid !== parseInt(mainPid, 10)) return fail()
 
     User.isAdministrator(data.postData.uid, (err, isAdmin) => {
       if (err || !isAdmin) return fail()
 
       renderPost(data.postData.content, (err, content) => {
+        if (err || !content) return next(null, data)
+
         data.postData.content = content.replace(pattern, '')
 
         next(null, data)
