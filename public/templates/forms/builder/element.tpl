@@ -8,7 +8,7 @@
   <!-- ENDIF erasable -->
 
   <!-- IF requirable -->
-  <button type="button" data-toggle="tooltip" data-placement="top" title="Require Input" class="btn btn-default pull-right pfa-btn-input pfa-btn-require-input" data-require="'+ ( data.require ? 'true' : 'false' ) +'"><i class="fa fa-fw fa-'+ ( data.require ? 'check-' : '' ) +'square-o"></i><span class="pfa-btn-span"> Require</span></button>
+  <button type="button" data-toggle="tooltip" data-placement="top" title="Require Input" class="btn btn-default pull-right pfa-btn-input pfa-btn-require-input" data-required="<!-- IF data.required -->true<!-- ELSE -->false<!-- ENDIF data.required -->"><i class="fa fa-fw fa-<!-- IF data.required -->check-<!-- ENDIF data.required -->square-o"></i><span class="pfa-btn-span"> Require</span></button>
   <!-- ENDIF requirable -->
 
   <!-- IF scriptable -->

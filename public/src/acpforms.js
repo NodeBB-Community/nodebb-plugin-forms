@@ -46,7 +46,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: '',
       template: 'multipleRadio',
-      newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
+      options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]
     },
     'checkboxes': {
       display: 'Check Group',
@@ -57,7 +57,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: '',
       template: 'multipleCheckbox',
-      newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
+      options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]
     },
     'select': {
       display: 'Dropdown',
@@ -67,7 +67,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: '',
       template: 'select',
-      newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
+      options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]
     },
     'selectmultiple': {
       display: 'List Box',
@@ -77,7 +77,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: '',
       template: 'multipleSelect',
-      newdata: {options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]}
+      options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]
     },
     'hidden': {
       display: 'Hidden',
@@ -95,7 +95,16 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: 'A group of scriptable buttons',
       template: '<div data-container class="btn-group"><!-- BEGIN buttons --><button data-object="buttons" data-type="type" data-text="label" type="{buttons.type}">{buttons.label}</button><!-- END buttons --></div>',
-      newdata: {buttons: [{type: 'submit', label: 'Submit'},{type: 'reset', label: 'Reset'}]}
+      buttons: [
+        {
+          type: 'submit',
+          label: 'Submit'
+        },
+        {
+          type: 'reset',
+          label: 'Reset'
+        }
+      ]
     },
 
     'url': {display: 'Link', camel: 'URL', erasable: true, requirable: true, group: 'advanced'},
@@ -130,7 +139,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       description: 'Send the remaining form to users.',
       template: '<span>Send the remaining form to the user(s): </span>\
             <input data-value="users" value="{users}">',
-      newdata: {users:''}
+      users: ''
     },
     'validate': {
       display: 'Validate Form',
@@ -243,18 +252,17 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       })
     }
 
-    function addElement (inputSortable, type, data) {
+    function addElement (inputSortable, type, elementData) {
       if (!inputSortable || !type) return
 
       let stamp = Date.now()
-      let formElement = formElements[type] || formElements.text
-      let template = formElement.template ? formElement.template : formElements.text.template
+      let data = elementData ? {...(formElements[type] || formElements.text), ...elementData} : (formElements[type] || formElements.text)
+      let template = data.template || formElements.text.template
       let html = ''
 
-      data = data || formElement.newdata || { }
-      data.name = data.name || type + stamp
-      data.value = data.value
-      data.label = ( typeof data.label !== 'undefined' ) ? data.label : ( ( formElement.display || 'Unknown' ) + ' Label' )
+      data.name = data.name || (type + stamp)
+      data.value = data.value || ''
+      data.label = (data.label || data.camel) + ' Label'
       data['default'] = data['default'] || ''
       data.element = type
 
@@ -300,7 +308,7 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
         $modalInputContent.empty()
 
         for (key in openInput) {
-          if (key !== 'type' && key !== 'require' && !formElements[key.toLowerCase().slice(2)]) {
+          if (key !== 'type' && key !== 'required' && !formElements[key.toLowerCase().slice(2)]) {
             if (Array.isArray(openInput[key]) && typeof openInput[key][0] === 'object') {
               if (!$modalInputContent.find('[data-modal-array='+key+']').length) {
                 benchpress.parse('forms/builder/elementModalArray', {key}, html => {
@@ -529,11 +537,11 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
           }
         })
       }).on('click', '.pfa-btn-require-input', function (e) {
-        if ($(this).data('require')) {
-          $(this).data('require', false)
+        if ($(this).data('required')) {
+          $(this).data('required', false)
           $(this).find('i').removeClass('fa-check-square-o').addClass('fa-square-o')
         }else{
-          $(this).data('require', true)
+          $(this).data('required', true)
           $(this).find('i').addClass('fa-check-square-o').removeClass('fa-square-o')
         }
       }).tooltip({
@@ -662,13 +670,13 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
     const elementData = formElements[element]
     const field = elementData.field || 'string'
     const widget = elementData.widget || 'text'
-    const require = !!$inputPanel.find('[data-require]').length
+    const required = $inputPanel.find('[data-required]').length ? $inputPanel.find('[data-required]').data('required') : false
 
     let input = {
       element,
       field,
       widget,
-      require,
+      required,
     }
 
     input['is' + (elementData.camel || 'Text')] = true

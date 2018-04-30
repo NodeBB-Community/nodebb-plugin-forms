@@ -1,6 +1,9 @@
 // nodebb-plugin-forms
 
 const forms = require('forms')
+const fields = forms.fields
+const validators = forms.validators
+const widgets = forms.widgets
 
 const fs = require('fs')
 const path = require('path')
@@ -33,6 +36,7 @@ function getFormObject (formID, next) {
 function getFormData (formID, next) {
   db.getObjectField('plugin-forms:formdata', formID, (err, formData) => {
     if (err) return next(err)
+    if (!formData) return next(new Error(`formID ${formID} doesn't exist.`))
 
     try {
       formData = JSON.parse(formData)
@@ -48,8 +52,20 @@ function getFormHTML (formID, next) {
   getFormData(formID, (err, formData) => {
     if (err) return next(err)
 
-    next(null, JSON.stringify(formData))
-    //next(null, forms.create(formData).toHTML())
+    // Transform data.
+    let transformedData = {}
+    formData.elements.forEach(elementObj => {
+      const {field, widget} = elementObj
+
+      // TODO: Configurable settings for widget.
+      elementObj.widget = widgets[widget]({})
+
+      transformedData[elementObj.name] = fields[field](elementObj)
+    })
+
+    console.dir(transformedData)
+
+    next(null, forms.create(transformedData).toHTML())
   })
 }
 
@@ -181,10 +197,6 @@ PluginForms.adminHeaderBuild = (custom_header, next) => {
 
 
 PluginForms.parseRaw = (content, next) => {
-  let pattern = /\(form:(.+)\)/g
-
-  content = content.replace(pattern, '')
-
   next(null, content)
 }
 
@@ -199,7 +211,7 @@ PluginForms.parsePost = (data, next) => {
   if (!(data && data.postData && data.postData.content)) return fail()
 
   db.getObjectField('topic:' + data.postData.tid, 'mainPid', (err, pid) => {
-    if (err || data.postData.pid !== parseInt(pid, 10)) return fail()
+    if (err || parseInt(data.postData.pid, 10) !== parseInt(pid, 10)) return fail()
 
     User.isAdministrator(data.postData.uid, (err, isAdmin) => {
       if (err || !isAdmin) return fail()
