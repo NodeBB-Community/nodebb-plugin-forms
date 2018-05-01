@@ -201,21 +201,6 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
 
     let $openForm, $openInput, openInput
 
-    const elementGroups = {
-        standard: {
-          pillStyle: 'pfa-pill-info'
-        },
-        advanced: {
-          pillStyle: 'pfa-pill-info'
-        },
-        phase: {
-          pillStyle: 'pfa-pill-danger'
-        },
-        decor: {
-          pillStyle: 'pfa-pill-warning'
-        }
-    }
-
     function addForm () {
       countNewForms++
 
@@ -316,9 +301,7 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
     app.loadJQueryUI(()=>{
       for (var formElement in formElements) {
         $('#pfa-inputs-panel-' + formElements[formElement].group)
-          .append($.parseHTML('<div class="btn-draggable '+ (elementGroups[formElements[formElement].group].pillStyle || 'pfa-pill-info') +'" type="'+ formElement +'">\
-                      <span class="text-center">'+ (formElements[formElement].display || formElement) +'</span>\
-                    </div>'))
+          .append($.parseHTML(''))
       }
 
       $pluginForms.on('click', '.pfa-btn-edit-input', function (e) {

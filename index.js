@@ -84,7 +84,39 @@ PluginForms.init = (params, next) => {
   const {app, router, middleware} = params
 
   function renderAdminPage (req, res, next) {
-    res.render('admin/plugins/plugin-forms-builder', {})
+    const formElementsStandard = {
+      'text': 'Text',
+      'textarea': 'Text Area',
+      'number': 'Number',
+      'radiogroup': 'Multiple Choice',
+      'checkboxes': 'Check Group',
+      'select': 'Dropdown',
+      'selectmultiple': 'List Box',
+      'hidden': 'Hidden',
+      'buttons': 'Buttons',
+    }
+
+    const formElementsAdvanced = {
+      'url': 'Link',
+      'email': 'E-Mail',
+      'price': 'Price',
+      'address': 'Address',
+      'date': 'Date',
+      'time': 'Time',
+      'select2': 'Select2',
+    }
+
+    const formElementsDecor = {
+      'info': 'Text Info',
+      'divider': 'Divider',
+    }
+
+    const formElementsPhase = {
+      'sendusers': 'Send to Users',
+      'validate': 'Validate Form',
+    }
+
+    res.render('admin/plugins/plugin-forms-builder', {formElementsStandard, formElementsAdvanced, formElementsDecor, formElementsPhase})
   }
 
   router.get('/admin/plugins/plugin-forms-builder', middleware.admin.buildHeader, renderAdminPage)
