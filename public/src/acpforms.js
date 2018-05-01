@@ -20,6 +20,8 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       template: 'text'
     },
     'textarea': {
+      field: 'string',
+      widget: 'textarea',
       display: 'Text Area',
       camel: 'TextArea',
       erasable: true,
@@ -29,6 +31,8 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       template: 'textarea'
     },
     'number': {
+      field: 'number',
+      widget: 'number',
       display: 'Number',
       camel: 'Number',
       erasable: true,
@@ -38,6 +42,8 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       template: 'number'
     },
     'radiogroup': {
+      field: 'string',
+      widget: 'multipleRadio',
       display: 'Multiple Choice',
       camel: 'RadioGroup',
       single: 'radio',
@@ -46,9 +52,15 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: '',
       template: 'multipleRadio',
-      options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]
+      choices: {
+        '1': 'Option 1',
+        '2': 'Option 2',
+        '3': 'Option 3',
+      },
     },
     'checkboxes': {
+      field: 'array',
+      widget: 'multipleCheckbox',
       display: 'Check Group',
       camel: 'Checkboxes',
       single: 'checkbox',
@@ -57,9 +69,15 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: '',
       template: 'multipleCheckbox',
-      options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]
+      choices: {
+        '1': 'Option 1',
+        '2': 'Option 2',
+        '3': 'Option 3',
+      },
     },
     'select': {
+      field: 'string',
+      widget: 'select',
       display: 'Dropdown',
       camel: 'Select',
       erasable: true,
@@ -67,9 +85,15 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: '',
       template: 'select',
-      options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]
+      choices: {
+        '1': 'Option 1',
+        '2': 'Option 2',
+        '3': 'Option 3',
+      },
     },
     'selectmultiple': {
+      field: 'array',
+      widget: 'multipleSelect',
       display: 'List Box',
       camel: 'SelectMultiple',
       erasable: true,
@@ -77,9 +101,15 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
       group: 'standard',
       description: '',
       template: 'multipleSelect',
-      options: [{value: '1', label: 'Option 1'},{value: '2', label: 'Option 2'},{value: '3', label: 'Option 3'}]
+      choices: {
+        '1': 'Option 1',
+        '2': 'Option 2',
+        '3': 'Option 3',
+      },
     },
     'hidden': {
+      field: 'string',
+      widget: 'hidden',
       display: 'Hidden',
       camel: 'Hidden',
       erasable: true,
@@ -271,11 +301,6 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
 
         benchpress.parse(`forms/builder/element`, data, html => {
           html = $.parseHTML(html)
-
-          // ???
-          $(html).find('[data-value]').each(function(){
-            this.value = data[this.getAttribute('data-value')]
-          })
 
           if ($(inputSortable).find('.btn-draggable').length) {
             // Adding a new element.
@@ -702,33 +727,23 @@ define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) =
     $inputPanel.find('[data-attribute-value]:not([data-object] [data-attribute-value], [data-object])').each(function(){
       ACPForms.setObjectKey(input, this.getAttribute('data-attribute-value'), this.getAttribute('value'))
     })
-    $inputPanel.find('[data-object]:not([data-object] [data-object])').each(function(){
-      var arr = this.getAttribute('data-object'),
-        i, obj, $this = $(this)
 
-      if (!Array.isArray(input[arr])) input[arr] = []
+    $inputPanel.find('[data-object]').each(function(i, $this){
+      $this = $($this)
 
-      i = input[arr].push({ })-1
-      obj = input[arr][i]
+      const name = $this.attr('data-object')
+      let key, value
 
-      $this.children('[data-value]').addBack('[data-value]').each(function(){
-        obj[this.getAttribute('data-value')] = $(this).val()
+      $this.find('[data-key]').addBack('[data-key]').each((i, e) => {
+        key = $(e)[$(e).attr('data-key')]()
       })
-      $this.children('[data-text]').addBack('[data-text]').each(function(){
-        obj[this.getAttribute('data-text')] = this.innerHTML
+      $this.find('[data-value]').addBack('[data-value]').each((i, e) => {
+        value = $(e)[$(e).attr('data-value')]()
       })
-      $this.children('[data-type]').addBack('[data-type]').each(function(){
-        obj[this.getAttribute('data-type')] = this.getAttribute('type')
-      })
-      $this.children('[data-selected]').addBack('[data-selected]').each(function(){
-        obj[this.getAttribute('data-selected')] = this.checked
-      })
-      $this.children('[data-checked]').addBack('[data-checked]').each(function(){
-        obj[this.getAttribute('data-checked')] = this.checked
-      })
-      $this.children('[data-attribute-value]').addBack('[data-attribute-value]').each(function(){
-        obj[this.getAttribute('data-attribute-value')] = this.getAttribute('value')
-      })
+
+      if (!input[name]) input[name] = {}
+
+      input[name][key] = value
     })
 
     return input

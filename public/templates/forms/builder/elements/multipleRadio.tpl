@@ -1,7 +1,7 @@
 <label data-text="label" class="control-label" tabindex="0">{label}</label>
-<!-- BEGIN options -->
-<div class="radio" data-object="options">
-  <input data-checked="default" data-attribute-value="value" class="pfa-input" type="radio" value="{options.value}" name="{name}" data-name="{name}" <!-- IF options.default -->checked="checked"<!-- ENDIF options.default -->/>
-  <label data-text="label" class="control-label pfa-input-option-label" tabindex="0">{options.label}</label>
+<!-- BEGIN choices -->
+<div class="radio" data-object="choices">
+  <input data-key="val" data-checked="default" class="pfa-input" type="radio" value="@key" name="{name}" data-name="{name}"/>
+  <label data-value="text" class="control-label pfa-input-option-label" tabindex="0">@value</label>
 </div>
-<!-- END options -->
+<!-- END choices -->
