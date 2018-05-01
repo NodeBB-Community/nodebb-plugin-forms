@@ -84,17 +84,11 @@ PluginForms.init = (params, next) => {
   const {app, router, middleware} = params
 
   function renderAdminPage (req, res, next) {
-    res.render(req.path.slice(1).replace('api/',''), {})
+    res.render('admin/plugins/plugin-forms-builder', {})
   }
 
-  function addAdminPage(page) {
-    router.get('/admin/plugins/plugin-forms' + (page ? '/' + page : ''), middleware.admin.buildHeader, renderAdminPage)
-    router.get('/api/admin/plugins/plugin-forms' + (page ? '/' + page : ''), renderAdminPage)
-  }
-
-  addAdminPage()
-  addAdminPage('form-builder')
-  addAdminPage('input-builder')
+  router.get('/admin/plugins/plugin-forms-builder', middleware.admin.buildHeader, renderAdminPage)
+  router.get('/api/admin/plugins/plugin-forms-builder', renderAdminPage)
 
   router.get('/plugin-forms/config', (req, res) => res.status(200))
 
@@ -177,7 +171,7 @@ PluginForms.init = (params, next) => {
 
 PluginForms.adminHeaderBuild = (custom_header, next) => {
   custom_header.plugins.push({
-    "route": '/plugins/plugin-forms/form-builder',
+    "route": '/plugins/plugin-forms-builder',
     "icon": 'fa-edit',
     "name": 'Forms',
   })

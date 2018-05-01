@@ -1,6 +1,6 @@
 // Plugin Forms - Admin Form Builder
 
-define('admin/plugins/plugin-forms/form-builder', ['benchpress'], (benchpress) => {
+define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
   var FormsACP = {
     forms: {}
   }
