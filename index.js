@@ -169,6 +169,8 @@ PluginForms.init = (params, next) => {
   }
 
   SocketAdmin.forms.load = (socket, data, next) => {
+    let forms = []
+
     async.waterfall([
       async.apply(db.getObject, 'plugin-forms:formdata'),
     ], (err, formsData) => {
@@ -180,14 +182,12 @@ PluginForms.init = (params, next) => {
         console.log('Loaded plugin-forms:formdata:')
         console.log(JSON.stringify(formsData, null, 4))
 
-        Object.keys(formsData).forEach(formid => {
-          formsData[formid] = JSON.parse(formsData[formid])
-        })
+        Object.keys(formsData).forEach(formid => forms.push(JSON.parse(formsData[formid])))
       } catch (err) {
         return console.log(err)
       }
 
-      next(null, formsData)
+      next(null, forms)
     })
   }
 

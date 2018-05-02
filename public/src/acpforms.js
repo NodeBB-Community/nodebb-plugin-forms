@@ -1,13 +1,9 @@
 // Plugin Forms - Admin Form Builder
 
 define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
-  var FormsACP = {
-    forms: {}
-  }
+  let ACPForms = {}
 
-  var ACPForms = {}
-
-  formElements = {
+  let formElements = {
     'text': {
       field: 'string',
       widget: 'text',
@@ -182,6 +178,17 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
     }
   }
 
+  let defaultFormData = {
+    formid: false,
+    title: false,
+    method: 'submit',
+    action: '/',
+    cmd: '',
+    captchasite: '',
+    container: 'panel',
+    elements: [],
+  }
+
   ACPForms.init = function () {
     console.log("Loading Plugin Forms Form Builder...")
 
@@ -201,16 +208,25 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
 
     let $openForm, $openInput, openInput
 
-    function addForm () {
-      countNewForms++
+    function addForm (data = defaultFormData) {
+      if (!data.formid) {
+        countNewForms++
+        data.formid = `${countNewForms}`
+        data.title = `New Form ${countNewForms}`
+      }
 
-      benchpress.parse('forms/builder/form', {countNewForms}, formHTML => {
-        $('#pfa-forms-list').append($.parseHTML(formHTML)).sortable("refresh").on('mousedown', '.popover', e => e.stopPropagation())
+      benchpress.parse('forms/builder/form', data, formHTML => {
+        $('#pfa-forms-list').append($.parseHTML(formHTML)).sortable("refresh").on('mousedown', '.popover', e => e.stopPropagation()) // What is this?
         makeInputListSortable($('.pfa-input-list').last())
         makeFormHeaderDroppable($('.pfa-form-panel-heading').last())
+
+        let inputSortable = $('.pfa-input-list').last()
+
+        if (!Array.isArray(data.elements)) return console.log('Error: Loaded form has no elements.')
+        data.elements.forEach(element => addElement(inputSortable, element.element, element))
       })
 
-      return $('#pfa-forms-list').children().last()
+      return $('.pfa-form-panel').last()
     }
 
     function makeFormsListSortable () {
@@ -649,9 +665,8 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
 
       makeFormsListSortable()
 
-      socket.emit('admin.forms.load', {}, (err, formsData) => {
-        console.dir(formsData)
-      })
+      // Load forms.
+      socket.emit('admin.forms.load', {}, (err, forms) => forms.forEach(form => addForm(form)))
     }) // jqui
   } // init
 
