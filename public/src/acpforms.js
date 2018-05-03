@@ -512,11 +512,20 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
           $toggle.blur()
         }
       }).on('click', '.pfa-btn-delete-form', function (e) {
-        var element = $(this).parents('li').first(),
-          form = element.find('.pfa-form-title').text()
-        bootbox.confirm('Are you sure?<p><span class="text-danger strong">This will delete form "' + form + '"</span></p>', function(result) {
+        const $form = $(this).parents('li').first()
+        const formname = $form.find('.pfa-form-title').text()
+        const formid = $form.find('.pfa-form-id').text()
+
+        bootbox.confirm(`Are you sure?<p><span class="text-danger strong">This will delete form ${formname}</span></p>`, result => {
           if (result) {
-            element.remove()
+            socket.emit('admin.forms.delete', {formid}, err => {
+              if (err) {
+                app.alertError(err)
+              } else {
+                $form.remove()
+                app.alertSuccess(`Form ${formname} successfully deleted.`)
+              }
+            })
           }
         })
       }).on('click', '.pfa-btn-clone-form', function (e) {
@@ -609,10 +618,12 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
           $form = $($form)
 
           const formid = $form.find('.pfa-form-id').text()
+          const formidOld = String($form.find('.pfa-form-id').data('original-formid'))
           const title = $form.find('.pfa-form-title').text()
 
           let form = {
             formid,
+            formidOld,
             title,
             elements: []
           }

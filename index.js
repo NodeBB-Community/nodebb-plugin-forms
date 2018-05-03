@@ -80,6 +80,14 @@ function renderFormPage (req, res, next) {
   })
 }
 
+function deleteForm (formid, next) {
+  async.waterfall([
+    async.apply(db.sortedSetRemove, 'plugin-forms:formids', formid),
+    async.apply(db.deleteObjectField , 'plugin-forms:formdata', `${formid}`),
+    async.apply(db.delete, `plugin-forms:formid:${formid}`),
+  ], next)
+}
+
 PluginForms.init = (params, next) => {
   const {app, router, middleware} = params
 
@@ -137,33 +145,48 @@ PluginForms.init = (params, next) => {
   SocketAdmin.forms.save = (socket, data, next) => {
     let {formsData} = data
 
-    formsData.forEach(formData => {
-      let {formid} = formData
+    async.each(formsData, (formData, next) => {
+      if (!formData.formid || !formData.formidOld) return next(new Error('Bad data sent to SocketAdmin.forms.save'))
 
-      try {
-        console.log('Saving formid:' + formid)
-        console.log(JSON.stringify(formData, null, 4))
-        formData = JSON.stringify(formData)
-      } catch (e) {
-        return console.log(e)
+      const {formid, formidOld} = formData
+
+      if (String(formid) !== String(formidOld)) {
+        async.waterfall([
+          async.apply(db.rename, `plugin-forms:formid:${formidOld}`, `plugin-forms:formid:${formid}`),
+          async.apply(deleteForm, formidOld),
+        ], next)
+      } else {
+        next()
       }
+    }, () => {
+      formsData.forEach(formData => {
+        let {formid} = formData
 
-      async.waterfall([
-        async.apply(db.sortedSetAdd, 'plugin-forms:formids', 0, formid),
-        async.apply(db.setObjectField, 'plugin-forms:formdata', `${formid}`, formData),
-        async.apply(db.setObject, `plugin-forms:formid:${formid}`, {lastModifiedByUid: socket.uid}),
-        (next) => {
-          db.getObjectField('plugin-forms:formdata', `${formid}`, (err, formData) => {
-            console.log('get plugin-forms:formdata')
-            console.log(formData)
-          })
+        try {
+          console.log('Saving formid:' + formid)
+          console.log(JSON.stringify(formData, null, 4))
+          formData = JSON.stringify(formData)
+        } catch (e) {
+          return console.log(e)
         }
-      ])
 
-      // Re-render all cached posts.
-      db.getSetMembers(`plugin-forms:formid:${formid}:cached`, (err, pids = []) => {
-        pids.forEach(pid => cache.del(String(pid)))
-        db.delete(`plugin-forms:formid:${formid}:cached`)
+        async.waterfall([
+          async.apply(db.sortedSetAdd, 'plugin-forms:formids', 0, formid),
+          async.apply(db.setObjectField, 'plugin-forms:formdata', `${formid}`, formData),
+          async.apply(db.setObject, `plugin-forms:formid:${formid}`, {lastModifiedByUid: socket.uid}),
+          (next) => {
+            db.getObjectField('plugin-forms:formdata', `${formid}`, (err, formData) => {
+              console.log('get plugin-forms:formdata')
+              console.log(formData)
+            })
+          }
+        ])
+
+        // Re-render all cached posts.
+        db.getSetMembers(`plugin-forms:formid:${formid}:cached`, (err, pids = []) => {
+          pids.forEach(pid => cache.del(String(pid)))
+          db.delete(`plugin-forms:formid:${formid}:cached`)
+        })
       })
     })
   }
@@ -189,6 +212,12 @@ PluginForms.init = (params, next) => {
 
       next(null, forms)
     })
+  }
+
+  SocketAdmin.forms.delete = (socket, data, next) => {
+    if (!data || !data.formid) return next(new Error('No formid given to SocketAdmin.forms.delete'))
+
+    deleteForm(data.formid, next)
   }
 
   SocketPlugins.PluginForms = {}

@@ -9,7 +9,7 @@
       <i class="fa fa-fw fa-arrow-down"></i>
     </button>
     <div class="panel-title pull-left">
-      <label data-text="formTitle" class="pfa-form-title" tabindex="0">{title}</label> (ID: <label data-text="formid" class="pfa-form-id" tabindex="0">{formid}</label>)
+      <label data-text="formTitle" class="pfa-form-title" tabindex="0">{title}</label> (ID: <label data-original-formid="{formid}" class="pfa-form-id" tabindex="0">{formid}</label>)
     </div>
     <button type="button" data-toggle="tooltip" data-placement="top" title="Delete Form" class="btn btn-danger pull-right pfa-btn-delete-form"><i class="fa fa-fw fa-times"></i></button>
     <button type="button" data-toggle="tooltip" data-placement="top" title="Clone Form" class="btn btn-info pull-right pfa-btn-clone-form"><i class="fa fa-fw fa-copy"></i></button>
