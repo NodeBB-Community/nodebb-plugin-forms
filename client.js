@@ -1,0 +1,1 @@
+window.Forms = require('forms')

@@ -11,6 +11,9 @@
     "./public/less/jqueryuipatch.less"
   ],
   "library": "./index.js",
+  "scripts": [
+    "./public/forms.min.js"
+  ],
   "acpScripts": [
     "./public/src/client.js",
     "./public/src/form.js",
