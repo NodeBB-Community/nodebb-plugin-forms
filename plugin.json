@@ -12,11 +12,9 @@
   ],
   "library": "./index.js",
   "scripts": [
-    "./public/forms.min.js"
+    "./public/src/client.js"
   ],
   "acpScripts": [
-    "./public/src/client.js",
-    "./public/src/form.js",
     "./public/src/acpforms.js"
   ],
   "templates": "./public/templates",

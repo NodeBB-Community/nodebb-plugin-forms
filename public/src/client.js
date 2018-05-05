@@ -1,35 +1,8 @@
-$(window).on('action:ajaxify.end', function(event, data) {
-	if (document.getElementById("pfa-records")) {
-		socket.emit('admin.settings.syncPluginForms');
-	}
+$(window).on('action:ajaxify.end', (event, data) => {
+  const $form = $(".pf-form")
 
-	var $form = $('.pf-form');
 	if ($form.length) {
-		$form = $form.first();
-		require(['//cdnjs.cloudflare.com/ajax/libs/parsley.js/2.0.7/parsley.min.js'], function(){
-			$form.parsley();
-		});
-
-		$('.pf-csrf').each(function() {
-			$csrf = $(this);
-			$.get('/api/config', function (data) {
-				$csrf.val(data.csrf_token);
-			});
-		});
-
-		$(document).on('submit', '#pf-basic', function(e) {
-			var action = $form.attr('action'),
-				method = $form.attr('method');
-
-			if (method === 'submit') {
-				e.preventDefault();
-				if ($form.parsley().validate()) {
-					PluginForms.submit($form.serialize(), function(err, data){
-						//alert('Thanks '+ data.username +' for submitting the form "'+ data.formname +'".');
-						if (action) window.location.href = action;
-					});
-				}
-			}
-		});
+		require(['plugins/nodebb-plugin-forms/public/vendor/forms.min.js'], Forms => {
+    })
 	}
-});
+})
