@@ -1,1 +1,3 @@
-define(function () { return require('forms'); });
+define(function(){
+  return require('forms');
+});
