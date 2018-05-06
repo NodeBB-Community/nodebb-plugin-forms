@@ -50,24 +50,28 @@ function getFormData (formID, next) {
 }
 
 function getFormHTML (formID, next) {
-  getFormData(formID, (err, formData) => {
-    if (err) return next(err)
+  async.waterfall([
+    async.apply(getFormData, formID),
+    async.apply(getElementHTML, formData),
+  ], next)
+}
 
-    // Transform data.
-    let transformedData = {}
-    formData.elements.forEach(elementObj => {
-      const {field, widget} = elementObj
+function getElementHTML (formData, next) {
+  let elementHTML = ''
 
-      // TODO: Configurable settings for widget.
-      elementObj.widget = widgets[widget]({})
+  formData.elements.forEach(elementObj => {
+    let {name, field, widget} = elementObj
 
-      transformedData[elementObj.name] = fields[field](elementObj)
-    })
+    // Don't render non-field data.
+    if (!field || !widget || !widgets[widget] || !fields[field]) return
 
-    console.dir(transformedData)
+    // TODO: Configurable settings for widget.
+    elementObj.widget = widgets[widget]({})
 
-    next(null, forms.create(transformedData).toHTML())
+    elementHTML += fields[field](elementObj).toHTML(name)
   })
+
+  next(null, elementHTML)
 }
 
 function renderFormPage (req, res, next) {
@@ -89,7 +93,7 @@ function deleteForm (formid, next) {
 }
 
 PluginForms.init = (params, next) => {
-  const {app, router, middleware} = params
+  ({app, router, middleware} = params)
 
   function renderAdminPage (req, res, next) {
     const formElementsStandard = {
@@ -249,7 +253,8 @@ PluginForms.parsePost = (data, next) => {
   let pattern = /\(form:(.+)\)/g
   let pid = parseInt(data.postData.pid, 10)
 
-  function fail () {
+  function fail (err) {
+    if (err) console.log(err)
     data.postData.content = data.postData.content.replace(pattern, '')
     next(null, data)
   }
@@ -264,32 +269,45 @@ PluginForms.parsePost = (data, next) => {
 
     formID = matches[1]
 
-    getFormHTML(formID, (err, formHTML) => {
-      if (err || !formHTML) return next(null, content)
+    getFormData(formID, (err, formData) => {
+      if (err || !formData) return next(new Error('No formid'))
 
-      // Store cached post.
-      db.setAdd(`plugin-forms:formid:${formID}:cached`, pid)
+      getElementHTML(formData, (err, elementHTML) => {
+        if (err || !elementHTML) return next(new Error('Failed to parse elements'))
 
-      content = content.replace(pattern, formHTML)
+        // Store cached post.
+        db.setAdd(`plugin-forms:formid:${formID}:cached`, pid)
 
-      next(null, content)
+        try {
+          formData.formData = JSON.stringify(formData)
+        } catch (e) {
+          console.log(e)
+          return next(null, content)
+        }
+
+        formData.elementHTML = elementHTML
+
+        next(null, formData)
+      })
     })
   }
 
-  if (!(data && data.postData && data.postData.content)) return fail()
+  if (!(data && data.postData && data.postData.content && data.postData.content.match(pattern))) return fail()
 
   db.getObjectField('topic:' + data.postData.tid, 'mainPid', (err, mainPid) => {
-    if (err || pid !== parseInt(mainPid, 10)) return fail()
+    if (err || pid !== parseInt(mainPid, 10)) return fail(err)
 
     User.isAdministrator(data.postData.uid, (err, isAdmin) => {
-      if (err || !isAdmin) return fail()
+      if (err || !isAdmin) return fail(err)
 
-      renderPost(data.postData.content, (err, content) => {
-        if (err || !content) return next(null, data)
+      renderPost(data.postData.content, (err, templateData) => {
+        if (err || !templateData) return fail(err)
 
-        data.postData.content = content.replace(pattern, '')
+        app.render('forms/form', templateData, (err, html) => {
+          data.postData.content = data.postData.content.replace(pattern, html).replace(pattern, '')
 
-        next(null, data)
+          next(null, data)
+        })
       })
     })
   })
