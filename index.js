@@ -56,18 +56,51 @@ function getFormHTML (formID, next) {
   ], next)
 }
 
-function bootstrapField (name, object) {
-  if (!Array.isArray(object.widget.classes)) object.widget.classes = []
-  if (object.widget.classes.indexOf('form-control') === -1) object.widget.classes.push('form-control')
+function bootstrapField (name, field) {
+  function multipleToHTML (name, field) {
+    let f = field || {}
+    let i = 0
+    let type = field.widget.type === 'multipleCheckbox' ? 'checkbox' : 'radio'
 
-  const label = object.labelHTML(name)
-  const error = object.error ? `<div class="alert alert-error help-block">${object.error}</div>` : ''
+    return Object.keys(f.choices).reduce((html, value) => {
+      let label = f.choices[value]
 
-  let validationclass = object.value && !object.error ? 'has-success' : ''
-  validationclass = object.error ? 'has-error' : validationclass
+      // input element
+      var id = f.id === false ? false : (f.id ? f.id + '_' + value : 'id_' + name + '_' + value)
+      var checked = f.value === value
+      var attrs = {
+        type,
+        name,
+        id: `id_${name}_${i++}`,
+        classes: [],
+        value,
+        checked,
+      }
 
-  const widget = object.widget.toHTML(name, object)
-  return `<div class="form-group ${validationclass}">${label}${widget}${error}</div>`
+      const inputHTML = `<div class="${attrs.type}"><label><input type="${attrs.type}" name="${attrs.name}" id="${attrs.id}" class="${attrs.classes.join(' ')}" value="${attrs.value}">${label}</label></div>`
+
+      return html + inputHTML
+    }, '')
+  }
+
+  if (!Array.isArray(field.widget.classes)) field.widget.classes = []
+  if (field.widget.classes.indexOf('form-control') === -1) field.widget.classes.push('form-control')
+
+  const label = field.labelHTML(name)
+  const error = field.error ? `<div class="alert alert-error help-block">${field.error}</div>` : ''
+
+  let validationclass = field.value && !field.error ? 'has-success' : ''
+  validationclass = field.error ? 'has-error' : validationclass
+
+  let widgetHTML
+  if (field.widget.type === 'multipleCheckbox' || field.widget.type === 'multipleRadio') {
+    widgetHTML = multipleToHTML(name, field)
+  } else {
+    widgetHTML = field.widget.toHTML(name, field)
+  }
+  widgetHTML = `<div class="col-lg-9">${widgetHTML}</div>`
+
+  return `<div class="form-group ${validationclass}">${label}${widgetHTML}${error}</div>`
 }
 
 function getElementHTML (formData, next) {
