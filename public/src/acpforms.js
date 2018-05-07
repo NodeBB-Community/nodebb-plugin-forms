@@ -293,7 +293,7 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
 
       data.name = data.name || (type + stamp)
       data.value = data.value || ''
-      data.label = (data.label || data.camel) + ' Label'
+      data.label = data.label || data.camel + ' Label'
       data['default'] = data['default'] || ''
       data.element = type
 
