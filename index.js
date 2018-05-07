@@ -56,6 +56,20 @@ function getFormHTML (formID, next) {
   ], next)
 }
 
+function bootstrapField (name, object) {
+  if (!Array.isArray(object.widget.classes)) object.widget.classes = []
+  if (object.widget.classes.indexOf('form-control') === -1) object.widget.classes.push('form-control')
+
+  const label = object.labelHTML(name)
+  const error = object.error ? `<div class="alert alert-error help-block">${object.error}</div>` : ''
+
+  let validationclass = object.value && !object.error ? 'has-success' : ''
+  validationclass = object.error ? 'has-error' : validationclass
+
+  const widget = object.widget.toHTML(name, object)
+  return `<div class="form-group ${validationclass}">${label}${widget}${error}</div>`
+}
+
 function getElementHTML (formData, next) {
   let elementHTML = ''
 
@@ -66,9 +80,15 @@ function getElementHTML (formData, next) {
     if (!field || !widget || !widgets[widget] || !fields[field]) return
 
     // TODO: Configurable settings for widget.
-    elementObj.widget = widgets[widget]({})
+    elementObj.widget = widgets[widget]({
+      classes: ['input-with-feedback']
+    })
 
-    elementHTML += fields[field](elementObj).toHTML(name)
+    elementObj.cssClasses = {
+      label: ['control-label col col-lg-3']
+    }
+
+    elementHTML += fields[field](elementObj).toHTML(name, bootstrapField)
   })
 
   next(null, elementHTML)

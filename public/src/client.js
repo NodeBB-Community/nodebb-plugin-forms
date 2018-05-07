@@ -13,7 +13,16 @@ function init (Forms) {
   this.formData = this.$form.data('form')
 
   const reduceElements = (obj, element) => {
-    obj[element.name] = this.Forms.fields[element.field](element)
+    let {field, widget, name} = element
+
+    // Don't render non-field data.
+    if (!field || !widget || !this.Forms.widgets[widget] || !this.Forms.fields[field]) return obj
+
+    // Render widget. Needed?
+    obj.widget = this.Forms.widgets[widget]({})
+
+    // Create field.
+    obj[name] = this.Forms.fields[field](element)
 
     return obj
   }
@@ -47,7 +56,7 @@ function submit () {
   if (validated) alert('Success')
 }
 
-const reduceArray = (obj, val) => {
+function reduceArray (obj, val) {
   obj[val.name] = val.value
 
   return obj
