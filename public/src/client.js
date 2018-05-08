@@ -71,6 +71,9 @@ $(window).on('action:ajaxify.end', (event, data) => {
         $form = $($form)
 
         CreateForm($form).init(Forms)
+
+        // Markdown fix
+        $('.pf-form [type="checkbox"]').off()
       })
     })
   }
