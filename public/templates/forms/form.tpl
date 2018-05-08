@@ -2,7 +2,14 @@
 <div class="panel panel-default"><div class="panel-body">
 <!-- ENDIF usePanel -->
 
-  <form class="pf-form pf-id-{formid} form-horizontal" method="{method}" action="{action}" target="_parent" data-form='{formData}'>
+  <form class="pf-form pf-id-{formid} form-horizontal col-lg-6" method="{method}" action="{action}" target="_parent" data-form='{formData}'>
+    <div class="form-group">
+      <div class="h1">{title}</div>
+      <!-- IF description -->
+      <p>{description}</p>
+      <!-- ENDIF description -->
+    </div>
+
     {elementHTML}
 
     <!-- IF captchasite -->
