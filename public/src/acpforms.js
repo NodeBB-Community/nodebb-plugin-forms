@@ -408,59 +408,53 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
         .on('click', '.pfa-btn-option-array-up', moveUp)
         .on('click', '.pfa-btn-option-array-down', moveDown)
 
+      function assignPopoverEvents ($popover, $text) {
+        const $input = $popover.find('.input-sm')
+        const $submit = $popover.find('.pfa-input-label-submit')
+        const $cancel = $popover.find('.pfa-input-label-cancel')
+        const $clear = $popover.find('.fa-times-circle')
+
+        $input.on('keypress', function (e) {
+          if (e.which === 13) { // Enter button
+            $text.text($input.val() || 'empty')
+            $popover.popover('hide')
+            $text.focus()
+          }
+        })
+
+        $submit.on('click', function (e) {
+          $text.text($input.val() || 'empty')
+          $popover.popover('hide')
+          $text.focus()
+        })
+
+        $cancel.on('click', function (e) {
+          $popover.popover('hide')
+          $text.focus()
+        })
+
+        $clear.on('click', function (e) {
+          $input.val('').focus()
+        })
+      }
+
+      // Text edit Popovers
       $pluginForms.popover({
         title: '',
         selector: 'label[data-text], .pfa-form-title, .pfa-form-id, .pfa-input-option-label',
         placement: 'top',
-        html: 'true',
-        content: function(){
-          var $html = $(document.createElement('div'))
+        html: true,
+        content () {
+          let $text = ${this}
+          let $html
 
-          $html.append('<div><input style="padding-right: 24px;" class="form-control input-sm" type="text">\
-                      <i class="fa fa-times-circle pointer"></i>\
-                      <button type="submit" class="btn btn-primary btn pfa-input-label-submit"><i class="fa fa-check"></i></button>\
-                      <button type="button" class="btn btn-default btn pfa-input-label-cancel"><i class="fa fa-times"></i></button></div>')
-          $html.find('.input-sm').on('keypress', function(e){
-            var $popover = $(this).closest('.popover'),
-              $label = $('[aria-describedby="'+ $popover.attr('id') +'"]'),
-              $input = $popover.find('.input-sm')
-
-            if(e.which === 13) {
-              e.preventDefault()
-              e.stopPropagation()
-              $label.text($input.val() || 'empty')
-              $popover.popover('hide')
-              $label.focus()
-            }
-          })
-          $html.find('.pfa-input-label-submit').on('click', function(e){
-            var $popover = $(this).closest('.popover'),
-              $label = $('[aria-describedby="'+ $popover.attr('id') +'"]'),
-              $input = $popover.find('.input-sm')
-
-            e.preventDefault()
-            e.stopPropagation()
-            $label.text($input.val() || 'empty')
-            $popover.popover('hide')
-            $label.focus()
-          })
-          $html.find('.pfa-input-label-cancel').on('click', function(e){
-            var $popover = $(this).closest('.popover'),
-              $label = $('[aria-describedby="'+ $popover.attr('id') +'"]')
-
-            e.preventDefault()
-            e.stopPropagation()
-            $popover.popover('hide')
-            $label.focus()
-          })
-          $html.find('.fa-times-circle').on('click', function(e){
-            var $popover = $(this).closest('.popover'),
-              $input = $popover.find('.input-sm')
-
-            $input.val('').focus()
+          benchpress.parse('forms/builder/textPopover', {}, $popover => {
+            $($popover)
+            assignPopoverEvents($popover, $text)
+            $html = $popover
           })
 
-          return $html
+          return $popover
         }
       }).on('shown.bs.popover', function (e) {
         var $el = $(e.target)
