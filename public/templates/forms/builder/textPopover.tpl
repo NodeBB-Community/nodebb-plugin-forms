@@ -1,5 +1,4 @@
-
-<div>
+<div id="pfa-text-popover">
   <input style="padding-right: 24px;" class="form-control input-sm" type="text">
   <i class="fa fa-times-circle pointer"></i>
   <button type="button" class="btn btn-primary btn pfa-input-label-submit">

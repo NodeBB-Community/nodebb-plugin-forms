@@ -237,11 +237,11 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
         forcePlaceholderSize: true,
         revert: true,
         start: function(e, ui) {
+          $('.popover').popover('destroy')
           $(this).find('.panel-body').addClass('hidden')
           $(this).find('.pfa-btn-toggle-form').blur().find('i').addClass('fa-arrow-down').removeClass('fa-arrow-up')
           ui.helper.css('height', 50)
           $(this).sortable('refreshPositions')
-          $('.popover').popover('destroy')
         }
       })
     }
@@ -253,8 +253,8 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
         forcePlaceholderSize: true,
         revert: true,
         start: function(event, ui) {
-          $(this).sortable('refreshPositions')
           $('.popover').popover('destroy')
+          $(this).sortable('refreshPositions')
         },
         receive: function(event, ui) {
           if (event.target === this && ui.item.is('.btn-draggable')) {
@@ -408,78 +408,66 @@ define('admin/plugins/plugin-forms-builder', ['benchpress'], (benchpress) => {
         .on('click', '.pfa-btn-option-array-up', moveUp)
         .on('click', '.pfa-btn-option-array-down', moveDown)
 
-      function assignPopoverEvents ($popover, $text) {
-        const $input = $popover.find('.input-sm')
-        const $submit = $popover.find('.pfa-input-label-submit')
-        const $cancel = $popover.find('.pfa-input-label-cancel')
-        const $clear = $popover.find('.fa-times-circle')
-
-        $input.on('keypress', function (e) {
-          if (e.which === 13) { // Enter button
-            $text.text($input.val() || 'empty')
-            $popover.popover('hide')
-            $text.focus()
-          }
-        })
-
-        $submit.on('click', function (e) {
-          $text.text($input.val() || 'empty')
-          $popover.popover('hide')
-          $text.focus()
-        })
-
-        $cancel.on('click', function (e) {
-          $popover.popover('hide')
-          $text.focus()
-        })
-
-        $clear.on('click', function (e) {
-          $input.val('').focus()
-        })
-      }
-
       // Text edit Popovers
-      $pluginForms.popover({
-        title: '',
-        selector: 'label[data-text], .pfa-form-title, .pfa-form-id, .pfa-input-option-label',
-        placement: 'top',
-        html: true,
-        content () {
-          let $text = ${this}
-          let $html
-
-          benchpress.parse('forms/builder/textPopover', {}, $popover => {
-            $($popover)
-            assignPopoverEvents($popover, $text)
-            $html = $popover
-          })
-
-          return $popover
-        }
-      }).on('shown.bs.popover', function (e) {
-        var $el = $(e.target)
-        // If the triggering element is inside our plugin.
-        if ($el.closest('#pfa-form-builder').length) {
-          // Stop dragging propagation.
-          $('.popover').on('mousedown', function(ev){
-            ev.stopPropagation()
-          })
-          // Set the popover input if the trigger is a label.
-          // Using the aria id because popover DOM placement is not always guaranteed.
-          if ($el.is('label[data-text], .pfa-form-title, .pfa-form-id, .pfa-input-option-label')) {
-            $('[id="'+ $el.attr('aria-describedby') +'"]').find('input').val($el.text()).focus().select()
-          }
-        }
-      }).on('show.bs.popover', function (e) {
-        $('.popover').each(function(){
-          $(this).prev().popover('destroy')
+      benchpress.parse('forms/builder/textPopover', {}, html => {
+        $pluginForms.popover({
+          title: '',
+          selector: 'label[data-text], .pfa-form-title, .pfa-form-id, .pfa-input-option-label',
+          placement: 'top',
+          html: true,
+          content: html,
         })
-      }).on('keydown', 'label[data-text], .pfa-form-title, .pfa-form-id, .pfa-input-option-label', function(e) {
-        var code = e.which
-        if ((code === 13) || (code === 32)) {
-          $(e.target).click()
-        }
-      }).on('click', '#pfa-modal-form-save', function (e) {
+
+        $pluginForms.on('shown.bs.popover', e => {
+          const $text = $(e.target)
+          const $popover = $('#pfa-text-popover')
+          const $input = $popover.find('.input-sm')
+          const $submit = $popover.find('.pfa-input-label-submit')
+          const $cancel = $popover.find('.pfa-input-label-cancel')
+          const $clear = $popover.find('.fa-times-circle')
+          const $parent = $popover.parent().parent()
+
+          // Stop dragging propagation.
+          $popover.on('mousedown', e => e.stopPropagation())
+
+          // Set input text.
+          $input.val($text.text()).focus().select()
+
+          // Enter button pressed in input.
+          $input.on('keypress', function (e) {
+            if (e.which === 13) {
+              $text.text($input.val() || 'empty')
+              $parent.popover('hide')
+              $text.focus()
+            }
+          })
+
+          $submit.on('click', function (e) {
+            $text.text($input.val() || 'empty')
+            $parent.popover('hide')
+            $text.focus()
+          })
+
+          $cancel.on('click', function (e) {
+            $parent.popover('hide')
+            $text.focus()
+          })
+
+          $clear.on('click', function (e) {
+            $input.val('').focus()
+          })
+        })
+
+        // Kill old popovers.
+        $pluginForms.on('show.bs.popover', () => $('div.popover').popover('destroy'))
+
+        // Keydown when text is focused.
+        $pluginForms.on('keydown', 'label[data-text], .pfa-form-title, .pfa-form-id, .pfa-input-option-label', e => {
+          if ((e.which === 13) || (e.which === 32)) $(e.target).click()
+        })
+      })
+
+      $pluginForms.on('click', '#pfa-modal-form-save', function (e) {
         $openForm.find('[data-setting]').each(function(i, el){
           var $el = $(el)
           $el.val($modalForm.find('[name="'+ $el.attr('name') +'"]').val())
